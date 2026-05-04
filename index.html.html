@@ -1,0 +1,2025 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXAI — AI Utility Token on Solana</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#020408;--bg1:#060b14;--bg2:#0b1525;
+  --sol:#9945FF;--g:#14F195;--g2:#0ef584;
+  --tx:#eef2f7;--tx2:#8b9eb5;--tx3:#3d5068;
+  --br:rgba(255,255,255,.06);--br2:rgba(20,241,149,.12);
+  --glow:rgba(20,241,149,.18);
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:'DM Sans',sans-serif;overflow-x:hidden}
+::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:var(--bg)}::-webkit-scrollbar-thumb{background:linear-gradient(var(--sol),var(--g));border-radius:3px}
+textarea,input,select{pointer-events:all!important;-webkit-user-select:text!important;user-select:text!important;z-index:5;position:relative}
+select{color-scheme:dark}
+
+/* ─── CURSOR ─── */
+#cursor{position:fixed;width:6px;height:6px;background:var(--g);border-radius:50%;pointer-events:none;z-index:99999;transform:translate(-50%,-50%);transition:transform .1s;box-shadow:0 0 8px var(--g),0 0 20px rgba(20,241,149,.4)}
+.cursor-ring{position:fixed;width:28px;height:28px;border:1px solid rgba(20,241,149,.5);border-radius:50%;pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:left .1s,top .1s,width .2s,height .2s}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;background:rgba(2,4,8,.82);backdrop-filter:blur(24px);border-bottom:1px solid var(--br);transition:all .3s}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--tx);font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:3px}
+.logo-icon{position:relative;width:36px;height:36px}
+.nav-links{display:flex;gap:4px;list-style:none}
+.nav-links a{font-size:13px;color:var(--tx2);text-decoration:none;padding:6px 14px;border-radius:8px;transition:all .2s;font-weight:500}
+.nav-links a:hover{color:var(--tx);background:rgba(255,255,255,.05)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nbadge{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;border:1px solid var(--br2);background:rgba(20,241,149,.06);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);letter-spacing:1px}
+.ndot{width:5px;height:5px;background:var(--g);border-radius:50%;box-shadow:0 0 6px var(--g);animation:ndot 2s infinite}
+@keyframes ndot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(.7)}}
+.nav-buy{padding:8px 20px;background:linear-gradient(135deg,var(--sol),var(--g));border:none;border-radius:8px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;color:#020408;letter-spacing:.5px;transition:all .25s;text-decoration:none;display:inline-block}
+.nav-buy:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(20,241,149,.3)}
+
+/* ─── HERO ─── */
+#hero{position:relative;min-height:100vh;display:flex;align-items:center;overflow:hidden}
+#canvas3d{position:absolute;inset:0;z-index:0}
+.hero-overlay{position:absolute;inset:0;z-index:1;background:radial-gradient(ellipse 70% 70% at 50% 50%,transparent 40%,var(--bg) 90%)}
+.hero-grid{position:absolute;inset:0;z-index:1;background-image:linear-gradient(rgba(20,241,149,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(20,241,149,.03) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent)}
+.scan-line{position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent 0%,rgba(20,241,149,.6) 50%,transparent 100%);z-index:2;animation:scan 6s linear infinite;pointer-events:none}
+@keyframes scan{0%{top:-1px;opacity:0}10%{opacity:1}90%{opacity:1}100%{top:100%;opacity:0}}
+
+.hero-inner{position:relative;z-index:3;width:100%;max-width:1240px;margin:0 auto;padding:120px 48px 80px;display:grid;grid-template-columns:1fr 420px;gap:80px;align-items:center;min-height:100vh}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;border:1px solid var(--br2);background:rgba(20,241,149,.06);font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;animation:fadeUp .6s ease both}
+h1.hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(60px,8vw,112px);line-height:.92;letter-spacing:2px;margin-bottom:18px;animation:fadeUp .6s .1s ease both}
+h1.hero-title span{background:linear-gradient(135deg,var(--g),var(--sol));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-sub{font-size:16px;color:var(--tx2);line-height:1.8;max-width:480px;margin-bottom:36px;animation:fadeUp .6s .2s ease both;font-weight:400}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px;animation:fadeUp .6s .3s ease both}
+.btn-primary{padding:13px 28px;background:linear-gradient(135deg,var(--sol),var(--g));border:none;border-radius:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#020408;transition:all .25s;letter-spacing:.5px;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 36px rgba(20,241,149,.3)}
+.btn-ghost{padding:13px 28px;border:1px solid rgba(255,255,255,.12);border-radius:10px;cursor:pointer;background:transparent;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:15px;color:var(--tx);transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-ghost:hover{border-color:var(--br2);color:var(--g);background:rgba(20,241,149,.05)}
+.hero-ca{animation:fadeUp .6s .35s ease both;display:flex;align-items:center;gap:10px;padding:11px 18px;background:rgba(255,255,255,.03);border:1px solid var(--br);border-radius:10px;cursor:pointer;transition:all .25s;max-width:fit-content}
+.hero-ca:hover{border-color:var(--br2);background:rgba(20,241,149,.05)}
+.hero-ca-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);letter-spacing:2px;text-transform:uppercase}
+.hero-ca-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx2)}
+.hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;animation:fadeUp .6s .4s ease both}
+.chip{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:8px;border:1px solid var(--br);background:rgba(255,255,255,.03);cursor:pointer;transition:all .25s;font-size:12px;color:var(--tx2);font-weight:500}
+.chip:hover{border-color:var(--br2);color:var(--g);background:rgba(20,241,149,.06);transform:translateY(-2px)}
+
+/* ─── HERO COIN ─── */
+.coin-wrap{position:relative;display:flex;align-items:center;justify-content:center;animation:fadeUp .6s .2s ease both}
+.coin-glow{position:absolute;width:380px;height:380px;background:radial-gradient(circle,rgba(20,241,149,.08) 0%,rgba(153,69,255,.05) 50%,transparent 70%);border-radius:50%;animation:glow-pulse 4s ease-in-out infinite;pointer-events:none}
+@keyframes glow-pulse{0%,100%{transform:scale(1);opacity:.7}50%{transform:scale(1.1);opacity:1}}
+.coin-body{width:260px;height:260px;border-radius:50%;background:radial-gradient(circle at 38% 34%,#1a2820,#080f0c 50%,#020606);border:2px solid rgba(20,241,149,.45);box-shadow:0 0 50px rgba(20,241,149,.18),0 0 100px rgba(20,241,149,.08),inset 0 0 40px rgba(20,241,149,.05);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;z-index:2;animation:float 5s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0) rotateY(-5deg)}50%{transform:translateY(-18px) rotateY(5deg)}}
+.coin-inner{width:80px;height:80px;border-radius:50%;background:radial-gradient(circle at 40% 38%,var(--sol),#3a0e8c);border:2px solid rgba(20,241,149,.7);box-shadow:0 0 28px rgba(153,69,255,.5);display:flex;align-items:center;justify-content:center}
+.coin-inner-text{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:3px}
+.coin-name{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:6px;color:var(--g);margin-top:14px;text-shadow:0 0 20px rgba(20,241,149,.8)}
+.coin-chain{font-family:'JetBrains Mono',monospace;font-size:9px;color:rgba(20,241,149,.5);letter-spacing:3px;margin-top:4px}
+.coin-scan{position:absolute;top:0;left:0;right:0;height:100%;background:linear-gradient(to bottom,transparent,rgba(20,241,149,.04),transparent);animation:coin-scan 3s linear infinite}
+@keyframes coin-scan{0%{transform:translateY(-100%)}100%{transform:translateY(100%)}}
+.coin-ring{position:absolute;border-radius:50%;border:1px solid rgba(20,241,149,.15);pointer-events:none}
+.cr1{width:310px;height:310px;top:50%;left:50%;transform:translate(-50%,-50%)}
+.cr2{width:340px;height:340px;top:50%;left:50%;transform:translate(-50%,-50%);border-color:rgba(153,69,255,.1)}
+.orbit-wrap{position:absolute;width:310px;height:310px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orbit1 8s linear infinite;pointer-events:none}
+.orbit-wrap2{position:absolute;width:310px;height:310px;top:50%;left:50%;transform:translate(-50%,-50%);animation:orbit2 12s linear infinite;pointer-events:none}
+@keyframes orbit1{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+@keyframes orbit2{from{transform:translate(-50%,-50%) rotate(0deg)}to{transform:translate(-50%,-50%) rotate(-360deg)}}
+.orbit-dot{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px var(--g);position:absolute;top:0;left:50%;transform:translateX(-50%)}
+.orbit-dot2{width:5px;height:5px;border-radius:50%;background:var(--sol);box-shadow:0 0 6px var(--sol);position:absolute;bottom:0;left:50%;transform:translateX(-50%)}
+.coin-shadow{position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);width:240px;height:24px;background:radial-gradient(ellipse,rgba(20,241,149,.2),transparent 70%);filter:blur(12px);pointer-events:none;animation:shadow-pulse 5s ease-in-out infinite}
+@keyframes shadow-pulse{0%,100%{opacity:.6;transform:translateX(-50%) scaleX(1)}50%{opacity:.25;transform:translateX(-50%) scaleX(.75)}}
+
+/* ─── TICKER ─── */
+.ticker{background:rgba(20,241,149,.04);border-top:1px solid var(--br2);border-bottom:1px solid var(--br2);padding:10px 0;overflow:hidden;position:relative;z-index:10}
+.ticker-inner{display:flex;gap:0;white-space:nowrap;animation:ticker 30s linear infinite}
+.ticker-item{display:inline-flex;align-items:center;gap:28px;padding:0 36px;font-family:'JetBrains Mono',monospace;font-size:11px;border-right:1px solid var(--br)}
+.ti-label{color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase}
+.ti-val{color:var(--g);font-weight:600}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ─── SECTIONS ─── */
+.sec{padding:100px 48px}
+.container{max-width:1240px;margin:0 auto}
+.sec-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);letter-spacing:3px;text-transform:uppercase;margin-bottom:12px}
+.sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(36px,5vw,60px);letter-spacing:1.5px;line-height:1;margin-bottom:16px}
+.sec-desc{font-size:15px;color:var(--tx2);line-height:1.8;max-width:520px}
+
+/* ─── AI STUDIO GRID ─── */
+.tools-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:60px;background:var(--br);border-radius:16px;overflow:hidden;border:1px solid var(--br)}
+.tool-card{background:var(--bg1);padding:38px 32px;cursor:pointer;transition:all .3s;position:relative;overflow:hidden}
+.tool-card:hover{background:rgba(20,241,149,.025)}
+.tool-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .3s}
+.tool-card:hover::before{opacity:1}
+.tool-card::after{content:'';position:absolute;bottom:0;right:0;width:140px;height:140px;background:radial-gradient(circle,rgba(20,241,149,.06),transparent 70%);opacity:0;transition:opacity .4s}
+.tool-card:hover::after{opacity:1}
+.tc-icon{font-size:28px;margin-bottom:14px}
+.tc-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;letter-spacing:.3px}
+.tc-desc{font-size:13px;color:var(--tx2);line-height:1.75}
+.tc-tag{display:inline-flex;margin-top:14px;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase}
+.tc-tag.live{background:rgba(20,241,149,.08);border:1px solid rgba(20,241,149,.2);color:var(--g)}
+.tc-tag.soon{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);color:#fcd34d}
+.tc-tag.road{background:rgba(153,69,255,.08);border:1px solid rgba(153,69,255,.18);color:#a855f7}
+
+/* ─── TOKEN SECTION ─── */
+.token-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:60px}
+.token-card{background:var(--bg1);border:1px solid var(--br);border-radius:14px;padding:28px;transition:all .3s;position:relative;overflow:hidden}
+.token-card:hover{border-color:var(--br2);transform:translateY(-3px)}
+.token-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--sol),var(--g));opacity:.5}
+.tc2-icon{font-size:28px;margin-bottom:12px}
+.tc2-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:8px}
+.tc2-desc{font-size:13px;color:var(--tx2);line-height:1.75}
+.tc2-badge{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--g);margin-top:10px;padding:5px 11px;background:rgba(20,241,149,.06);border-radius:6px;display:inline-block}
+
+/* ─── HOW TO BUY ─── */
+.steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:60px}
+.step-card{background:var(--bg1);border:1px solid var(--br);border-radius:14px;padding:28px 22px;text-align:center;transition:all .3s}
+.step-card:hover{border-color:var(--br2);transform:translateY(-4px);box-shadow:0 16px 40px rgba(20,241,149,.06)}
+.step-num{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--sol),var(--g));display:grid;place-items:center;font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:1px;margin:0 auto 14px;box-shadow:0 0 20px rgba(20,241,149,.2)}
+.step-title{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;margin-bottom:8px}
+.step-desc{font-size:12px;color:var(--tx2);line-height:1.7}
+.step-tag{display:inline-block;margin-top:10px;padding:3px 10px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:9px;background:rgba(20,241,149,.06);color:var(--g);border:1px solid var(--br2)}
+
+/* ─── CONTRACT BOX ─── */
+.ca-box{margin-top:44px;padding:34px;background:rgba(20,241,149,.04);border:1px solid rgba(20,241,149,.18);border-radius:16px;text-align:center}
+.ca-live{display:flex;align-items:center;justify-content:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);letter-spacing:2px;margin-bottom:12px}
+.ca-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx);padding:12px 18px;background:rgba(0,0,0,.3);border-radius:9px;cursor:pointer;border:1px solid rgba(20,241,149,.12);word-break:break-all;margin-bottom:8px;transition:all .2s;display:block}
+.ca-addr:hover{border-color:rgba(20,241,149,.3);background:rgba(20,241,149,.04)}
+.ca-hint{font-size:11px;color:var(--tx3);margin-bottom:22px;font-family:'JetBrains Mono',monospace}
+.ca-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ─── ROADMAP ─── */
+.roadmap-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:60px}
+.rm-card{background:var(--bg1);border:1px solid var(--br);border-radius:14px;padding:26px;position:relative;transition:all .3s}
+.rm-card.done{border-color:rgba(20,241,149,.25)}
+.rm-card.active{border-color:rgba(153,69,255,.3)}
+.rm-card:hover{transform:translateY(-3px)}
+.rm-badge{position:absolute;top:14px;right:14px;padding:3px 9px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.5px}
+.rm-badge.gn{background:rgba(20,241,149,.1);color:var(--g)}
+.rm-badge.vt{background:rgba(153,69,255,.1);color:#a855f7}
+.rm-phase{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:6px}
+.rm-card.done .rm-phase{color:var(--g)}
+.rm-card.active .rm-phase{color:#a855f7}
+.rm-card:not(.done):not(.active) .rm-phase{color:var(--tx3)}
+.rm-title{font-family:'Rajdhani',sans-serif;font-size:17px;font-weight:700;margin-bottom:14px}
+.rm-items{display:flex;flex-direction:column;gap:6px}
+.rm-item{font-size:12px;color:var(--tx2);padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.02);border-left:2px solid rgba(255,255,255,.05)}
+.rm-item.done-item{color:var(--tx);border-left-color:var(--g)}
+.rm-item.active-item{color:var(--tx);border-left-color:#fcd34d}
+
+/* ─── FOOTER ─── */
+footer{background:var(--bg1);border-top:1px solid var(--br);padding:64px 48px 28px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:56px;margin-bottom:48px}
+.footer-brand p{font-size:13px;color:var(--tx2);line-height:1.8;margin-top:12px;max-width:280px}
+.footer-col h4{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--tx2);text-decoration:none;margin-bottom:9px;transition:color .2s}
+.footer-col a:hover{color:var(--tx)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:22px;border-top:1px solid var(--br)}
+.footer-copy{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3)}
+.social-link{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1px solid var(--br);border-radius:9px;text-decoration:none;color:var(--tx2);font-size:13px;font-weight:600;transition:all .2s}
+.social-link:hover{border-color:var(--br2);color:var(--g);background:rgba(20,241,149,.05)}
+
+/* ─── APP OVERLAY ─── */
+#app{position:fixed;inset:0;z-index:1000;background:var(--bg);display:none;flex-direction:row}
+#app.open{display:flex}
+#sidebar{width:62px;background:rgba(255,255,255,.018);border-right:1px solid var(--br);display:flex;flex-direction:column;align-items:center;padding:14px 0;flex-shrink:0;overflow:hidden;transition:width .3s cubic-bezier(.16,1,.3,1);position:relative}
+#sidebar.wide{width:200px}
+.sb-toggle{position:absolute;right:-12px;top:20px;width:24px;height:24px;border-radius:50%;background:var(--bg2);border:1px solid var(--br);display:grid;place-items:center;cursor:pointer;font-size:11px;color:var(--tx2);z-index:5;transition:all .2s}
+.sb-toggle:hover{background:rgba(20,241,149,.12);border-color:var(--g);color:var(--g)}
+.sb-nav{display:flex;flex-direction:column;gap:2px;width:100%;padding:0 7px;flex:1}
+.sb-item{display:flex;align-items:center;gap:10px;padding:11px 9px;border-radius:9px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.sb-item:hover{background:rgba(255,255,255,.05)}
+.sb-item.on{background:rgba(20,241,149,.08)}
+.sb-bar{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--g);border-radius:2px;opacity:0;transition:opacity .2s}
+.sb-item.on .sb-bar{opacity:1}
+.sb-icon{font-size:17px;flex-shrink:0;width:22px;text-align:center}
+.sb-label{font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:600;color:var(--tx2);white-space:nowrap;opacity:0;transition:opacity .25s}
+#sidebar.wide .sb-label{opacity:1}
+.sb-item.on .sb-icon,.sb-item.on .sb-label{color:var(--g)}
+.sb-bottom{padding:0 7px;margin-top:auto;display:flex;flex-direction:column;gap:6px}
+.sb-close{display:flex;align-items:center;gap:10px;padding:10px 9px;border-radius:9px;cursor:pointer;transition:all .2s;border:1px solid var(--br)}
+.sb-close:hover{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1)}
+.sb-close-icon{font-size:14px;flex-shrink:0;width:22px;text-align:center}
+.sb-close-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3);white-space:nowrap;opacity:0;transition:opacity .25s}
+#sidebar.wide .sb-close-label{opacity:1}
+#panels{flex:1;overflow:hidden;display:flex;flex-direction:column}
+.panel{display:none;flex-direction:column;height:100%;overflow:hidden}
+.panel.on{display:flex}
+.panel-head{padding:0 24px;height:52px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;background:rgba(255,255,255,.012)}
+.panel-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;letter-spacing:.5px}
+.panel-badge{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);padding:3px 8px;border-radius:4px;background:rgba(20,241,149,.08);border:1px solid var(--br2);letter-spacing:1px}
+
+/* ─── CHAT PANEL ─── */
+#chat-msgs{flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:14px;scroll-behavior:smooth}
+.msg{display:flex;gap:12px;animation:fadeUp .3s ease}
+.msg.user{flex-direction:row-reverse}
+.msg-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:grid;place-items:center;font-size:14px}
+.msg-avatar.ai{background:linear-gradient(135deg,var(--sol),var(--g))}
+.msg-avatar.user{background:rgba(255,255,255,.08);border:1px solid var(--br)}
+.msg-bubble{max-width:70%;padding:12px 16px;border-radius:12px;font-size:14px;line-height:1.7}
+.msg-bubble.ai{background:var(--bg2);border:1px solid var(--br);border-top-left-radius:4px;color:var(--tx)}
+.msg-bubble.user{background:linear-gradient(135deg,rgba(153,69,255,.25),rgba(20,241,149,.15));border:1px solid rgba(20,241,149,.18);border-top-right-radius:4px;color:var(--tx)}
+.msg-typing{display:flex;gap:5px;padding:14px 18px}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--g);animation:typing 1.4s infinite}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typing{0%,80%,100%{transform:scale(1);opacity:.6}40%{transform:scale(1.3);opacity:1}}
+.chat-input-wrap{padding:16px 20px;border-top:1px solid var(--br);display:flex;gap:10px;flex-shrink:0}
+.chat-input{flex:1;background:var(--bg2);border:1px solid var(--br);border-radius:10px;padding:12px 16px;color:var(--tx);font-size:14px;font-family:'DM Sans',sans-serif;outline:none;resize:none;transition:border-color .2s;line-height:1.5}
+.chat-input:focus{border-color:var(--br2)}
+.chat-send{width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--sol),var(--g));border:none;cursor:pointer;display:grid;place-items:center;font-size:18px;flex-shrink:0;transition:all .2s;align-self:flex-end}
+.chat-send:hover{transform:scale(1.06);box-shadow:0 4px 16px rgba(20,241,149,.3)}
+.chat-suggestions{display:flex;gap:8px;padding:0 20px 14px;flex-wrap:wrap;flex-shrink:0}
+.sug-chip{padding:6px 12px;border-radius:8px;border:1px solid var(--br);background:rgba(255,255,255,.02);cursor:pointer;font-size:11px;color:var(--tx2);transition:all .2s;font-family:'JetBrains Mono',monospace}
+.sug-chip:hover{border-color:var(--br2);color:var(--g);background:rgba(20,241,149,.05)}
+
+/* ─── IMAGE PANEL ─── */
+.img-panel-inner{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;height:100%}
+.img-controls{padding:20px;border-right:1px solid var(--br);display:flex;flex-direction:column;gap:14px}
+.img-output-area{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;background:rgba(0,0,0,.2);position:relative;overflow:hidden}
+.form-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--g);letter-spacing:2px;text-transform:uppercase;margin-bottom:7px}
+.form-textarea{width:100%;background:var(--bg2);border:1px solid var(--br);border-radius:10px;padding:12px;color:var(--tx);font-size:13px;font-family:'DM Sans',sans-serif;outline:none;resize:none;transition:border-color .2s;line-height:1.6}
+.form-textarea:focus{border-color:var(--br2)}
+.form-select{width:100%;background:var(--bg2);border:1px solid var(--br);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.action-btn{width:100%;padding:13px;background:linear-gradient(135deg,var(--sol),var(--g));border:none;border-radius:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#020408;transition:all .2s;letter-spacing:.5px}
+.action-btn:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 24px rgba(20,241,149,.25)}
+.action-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.action-btn-ghost{width:100%;padding:11px;background:transparent;border:1px solid var(--br);border-radius:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:600;font-size:14px;color:var(--tx2);transition:all .2s}
+.action-btn-ghost:hover{border-color:var(--br2);color:var(--g)}
+.img-placeholder{text-align:center;color:var(--tx3)}
+.img-placeholder .big-icon{font-size:64px;opacity:.15;margin-bottom:16px}
+.img-result{max-width:100%;max-height:100%;border-radius:12px;border:1px solid var(--br);box-shadow:0 8px 40px rgba(0,0,0,.5)}
+.img-spinner{width:40px;height:40px;border:2px solid rgba(20,241,149,.2);border-top-color:var(--g);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ─── CODE PANEL ─── */
+.code-panel-inner{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;height:100%}
+.code-output-area{background:#060c10;border-left:1px solid var(--br);overflow:auto;position:relative;display:flex;flex-direction:column}
+.code-output-head{padding:10px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.code-output-body{flex:1;overflow:auto;padding:18px}
+pre{font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;color:#a8b8c8;white-space:pre-wrap;word-break:break-word}
+.kw{color:#c792ea}.str2{color:#c3e88d}.com{color:#546e7a}.num{color:#f78c6c}.fn2{color:#82aaff}
+.code-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--tx3);text-align:center;padding:24px;gap:10px}
+.template-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.tpl-btn{padding:5px 11px;border-radius:6px;border:1px solid var(--br);background:rgba(255,255,255,.02);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx2);transition:all .2s}
+.tpl-btn:hover{border-color:var(--br2);color:var(--g);background:rgba(20,241,149,.05)}
+.code-actions{display:flex;gap:7px;flex-wrap:wrap}
+.code-action-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--br);background:transparent;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx2);transition:all .2s}
+.code-action-btn:hover{border-color:var(--br2);color:var(--g)}
+.code-action-btn.gr{border-color:rgba(20,241,149,.2);color:var(--g);background:rgba(20,241,149,.05)}
+
+/* ─── TRANSLATOR PANEL ─── */
+.tr-panel-inner{flex:1;display:grid;grid-template-columns:1fr 1fr;overflow:hidden}
+.tr-side{display:flex;flex-direction:column;border-right:1px solid var(--br)}
+.tr-head{padding:10px 16px;border-bottom:1px solid var(--br);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.tr-select{flex:1;background:var(--bg2);border:1px solid var(--br);border-radius:8px;padding:7px 10px;color:var(--tx);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none}
+.tr-textarea{flex:1;background:transparent;border:none;outline:none;color:var(--tx);font-size:14px;font-family:'DM Sans',sans-serif;line-height:1.7;padding:18px;resize:none;min-height:0;cursor:text!important}
+.tr-foot{padding:10px 16px;border-top:1px solid var(--br);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.tr-btn-main{width:calc(100% - 32px);margin:0 16px 14px;padding:13px;background:linear-gradient(135deg,var(--sol),var(--g));border:none;border-radius:10px;cursor:pointer;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;color:#020408;transition:all .2s;letter-spacing:.5px;flex-shrink:0}
+.tr-btn-main:hover:not(:disabled){box-shadow:0 4px 20px rgba(20,241,149,.25)}
+.tr-btn-main:disabled{opacity:.5;cursor:not-allowed}
+.swap-btn{width:34px;height:34px;flex-shrink:0;border-radius:8px;border:1px solid var(--br);background:var(--bg2);color:var(--tx2);font-size:17px;cursor:pointer;display:grid;place-items:center;transition:all .2s}
+.swap-btn:hover{border-color:var(--br2);color:var(--g)}
+.tr-char{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3)}
+.mini-btn{padding:5px 10px;border-radius:6px;border:1px solid var(--br);background:transparent;cursor:pointer;font-size:11px;color:var(--tx2);transition:all .2s}
+.mini-btn:hover{border-color:var(--br2);color:var(--g)}
+.detect-badge{padding:6px 16px;background:rgba(20,241,149,.07);border-bottom:1px solid rgba(20,241,149,.12);font-size:10px;font-family:'JetBrains Mono',monospace;color:var(--g);flex-shrink:0}
+.quick-langs{display:flex;gap:6px;padding:10px 16px;border-bottom:1px solid var(--br);flex-wrap:wrap;flex-shrink:0}
+.ql-btn{padding:4px 10px;border-radius:6px;border:1px solid var(--br);background:rgba(255,255,255,.02);cursor:pointer;font-size:11px;color:var(--tx2);transition:all .2s;font-family:'JetBrains Mono',monospace}
+.ql-btn:hover{border-color:var(--br2);color:var(--g)}
+.tr-output-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;color:var(--tx3);text-align:center;padding:24px;gap:8px;position:absolute;inset:0}
+.tr-output-text{font-size:15px;line-height:1.75;color:var(--tx);padding:18px;word-break:break-word;white-space:pre-wrap}
+.tr-actions-row{padding:10px 14px;border-top:1px solid var(--br);display:flex;gap:8px;flex-shrink:0}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.rev{opacity:0;transform:translateY(20px);transition:opacity .6s,transform .6s}
+.rev.vis{opacity:1;transform:translateY(0)}
+
+/* ─── MOBILE ─── */
+@media(max-width:900px){
+  nav{padding:0 20px}
+  .nav-links{display:none}
+  .hero-inner{grid-template-columns:1fr;padding:100px 20px 60px;gap:40px;min-height:auto}
+  .coin-wrap{order:-1}
+  .coin-body{width:200px;height:200px}
+  .orbit-wrap{width:230px;height:230px}.orbit-wrap2{width:230px;height:230px}
+  .cr1{width:235px;height:235px}.cr2{width:260px;height:260px}
+  .coin-glow{width:260px;height:260px}
+  .sec{padding:64px 20px}
+  .tools-grid{grid-template-columns:1fr;border:none;background:transparent;gap:10px}
+  .tool-card{border:1px solid var(--br);border-radius:12px}
+  .token-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:repeat(2,1fr)}
+  .roadmap-grid{grid-template-columns:1fr 1fr}
+  .footer-grid{grid-template-columns:1fr;gap:32px}
+  .img-panel-inner,.code-panel-inner,.tr-panel-inner{grid-template-columns:1fr}
+  .img-output-area,.code-output-area{display:none}
+  .tr-side:nth-child(2){display:none}
+  #sidebar{width:52px}
+  #sidebar.wide{width:180px}
+  .hero-ca-addr{font-size:9px}
+}
+@media(max-width:600px){
+  h1.hero-title{font-size:56px}
+  .steps-grid{grid-template-columns:1fr}
+  .roadmap-grid{grid-template-columns:1fr}
+  .ticker-inner{animation-duration:18s}
+}
+</style>
+</head>
+<body>
+
+<!-- CURSOR -->
+<div id="cursor"></div>
+<div class="cursor-ring"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="logo" href="#">
+    <div class="logo-icon">
+      <svg width="36" height="36" viewBox="0 0 36 36" style="overflow:visible">
+        <defs><style>.o1{transform-origin:18px 18px;animation:osp 8s linear infinite}.o2{transform-origin:18px 18px;animation:osp 13s linear infinite reverse}@keyframes osp{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style></defs>
+        <circle cx="18" cy="18" r="7.5" fill="#9945FF"/>
+        <ellipse class="o1" cx="18" cy="18" rx="16" ry="6.5" fill="none" stroke="#14F195" stroke-width="1.8" transform="rotate(-18 18 18)"/>
+        <ellipse class="o2" cx="18" cy="18" rx="13.5" ry="5.5" fill="none" stroke="#14F195" stroke-width="1" opacity="0.5" transform="rotate(48 18 18)"/>
+        <text x="18" y="22" text-anchor="middle" fill="#fff" font-size="6" font-weight="700" font-family="system-ui">NX</text>
+      </svg>
+    </div>
+    NEX<span style="color:var(--g)">AI</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#studio">AI Studio</a></li>
+    <li><a href="#token">Token</a></li>
+    <li><a href="#buy">How to Buy</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="https://x.com/nexai2026" target="_blank">𝕏 Twitter</a></li>
+  </ul>
+  <div class="nav-right">
+    <div class="nbadge"><div class="ndot"></div>LIVE ON SOLANA</div>
+    <a class="nav-buy" href="https://pump.fun/coin/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">🔥 Buy $NEXAI</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <canvas id="canvas3d"></canvas>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+  <div class="scan-line"></div>
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge"><span class="ndot"></span> SOLANA AI UTILITY TOKEN</div>
+      <h1 class="hero-title">THE AI<br>THAT RUNS<br><span>ON-CHAIN</span></h1>
+      <p class="hero-sub">Chat, create images, generate code & translate across 130+ languages — completely free. Powered by $NEXAI on Solana.</p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="https://pump.fun/coin/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">🔥 Buy on PumpFun</a>
+        <button class="btn-ghost" onclick="openApp('c')">🤖 Try AI Free</button>
+      </div>
+      <div class="hero-ca" onclick="copyCA()">
+        <div>
+          <div class="hero-ca-label">📋 Contract Address</div>
+          <div class="hero-ca-addr" id="ca-display">Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump</div>
+        </div>
+      </div>
+      <div class="hero-chips">
+        <div class="chip" onclick="openApp('c')">🤖 AI Chat</div>
+        <div class="chip" onclick="openApp('i')">🎨 Image Studio</div>
+        <div class="chip" onclick="openApp('o')">💻 Code Studio</div>
+        <div class="chip" onclick="openApp('tr')">🌐 Translator</div>
+      </div>
+    </div>
+    <div class="coin-wrap">
+      <div class="coin-glow"></div>
+      <div class="coin-ring cr1"></div>
+      <div class="coin-ring cr2"></div>
+      <div class="orbit-wrap"><div class="orbit-dot"></div></div>
+      <div class="orbit-wrap2"><div class="orbit-dot2"></div></div>
+      <div class="coin-body">
+        <div class="coin-scan"></div>
+        <div class="coin-inner"><div class="coin-inner-text">NX</div></div>
+        <div class="coin-name">NEXAI</div>
+        <div class="coin-chain">◎ SOLANA</div>
+      </div>
+      <div class="coin-shadow"></div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner" id="ticker">
+    <div class="ticker-item"><span class="ti-label">Network</span><span class="ti-val">◎ Solana</span></div>
+    <div class="ticker-item"><span class="ti-label">Supply</span><span class="ti-val">1,000,000,000</span></div>
+    <div class="ticker-item"><span class="ti-label">Tax</span><span class="ti-val">0% / 0%</span></div>
+    <div class="ticker-item"><span class="ti-label">AI Tools</span><span class="ti-val">4 Live Now</span></div>
+    <div class="ticker-item"><span class="ti-label">Launch</span><span class="ti-val">PumpFun Fair</span></div>
+    <div class="ticker-item"><span class="ti-label">Languages</span><span class="ti-val">130+ Supported</span></div>
+    <div class="ticker-item"><span class="ti-label">Contract</span><span class="ti-val">Ed2WuHv9...kpump</span></div>
+    <div class="ticker-item"><span class="ti-label">Twitter</span><span class="ti-val">@nexai2026</span></div>
+    <!-- Duplicate for seamless loop -->
+    <div class="ticker-item"><span class="ti-label">Network</span><span class="ti-val">◎ Solana</span></div>
+    <div class="ticker-item"><span class="ti-label">Supply</span><span class="ti-val">1,000,000,000</span></div>
+    <div class="ticker-item"><span class="ti-label">Tax</span><span class="ti-val">0% / 0%</span></div>
+    <div class="ticker-item"><span class="ti-label">AI Tools</span><span class="ti-val">4 Live Now</span></div>
+    <div class="ticker-item"><span class="ti-label">Launch</span><span class="ti-val">PumpFun Fair</span></div>
+    <div class="ticker-item"><span class="ti-label">Languages</span><span class="ti-val">130+ Supported</span></div>
+    <div class="ticker-item"><span class="ti-label">Contract</span><span class="ti-val">Ed2WuHv9...kpump</span></div>
+    <div class="ticker-item"><span class="ti-label">Twitter</span><span class="ti-val">@nexai2026</span></div>
+  </div>
+</div>
+
+<!-- AI STUDIO -->
+<section id="studio" class="sec">
+  <div class="container">
+    <div class="sec-label rev">AI Studio</div>
+    <h2 class="sec-title rev">FOUR AI TOOLS.<br>FREE FOREVER.</h2>
+    <p class="sec-desc rev">No wallet. No API key. No cost. Chat, create, code, and communicate — all powered by frontier AI, live right now.</p>
+    <div class="tools-grid">
+      <div class="tool-card rev" onclick="openApp('c')" style="cursor:pointer">
+        <div class="tc-icon">🤖</div>
+        <div class="tc-title">AI Chat</div>
+        <div class="tc-desc">Expert answers on Solana, DeFi, trading, crypto, coding, and anything else. Powered by advanced AI with memory of your conversation.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('i')" style="cursor:pointer;transition-delay:.06s">
+        <div class="tc-icon">🎨</div>
+        <div class="tc-title">Image Studio</div>
+        <div class="tc-desc">Transform your text descriptions into stunning digital art, photorealistic images, and unique illustrations in seconds. Multiple style options.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('o')" style="cursor:pointer;transition-delay:.12s">
+        <div class="tc-icon">💻</div>
+        <div class="tc-title">Code Studio</div>
+        <div class="tc-desc">Generate production-ready code in any language. Solana bots, DeFi scripts, full-stack apps, smart contracts, and more. With explanations.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('tr')" style="cursor:pointer;transition-delay:.18s">
+        <div class="tc-icon">🌐</div>
+        <div class="tc-title">AI Translator</div>
+        <div class="tc-desc">Instantly translate across 130+ languages — Americas, Africa, Europe, Asia, Middle East & Pacific. Auto-detect source language.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" style="transition-delay:.24s">
+        <div class="tc-icon">🎵</div>
+        <div class="tc-title">AI Music Studio</div>
+        <div class="tc-desc">Full song generation with lyrics, chord progressions, and production notes. Unlocks at 5,000 holders milestone.</div>
+        <span class="tc-tag soon">5K Holders</span>
+      </div>
+      <div class="tool-card rev" style="transition-delay:.30s">
+        <div class="tc-icon">🔥</div>
+        <div class="tc-title">Token Burn Mechanism</div>
+        <div class="tc-desc">Premium AI tier burns $NEXAI tokens permanently, creating deflationary pressure as platform adoption grows with holders.</div>
+        <span class="tc-tag road">Roadmap</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('wr')" style="cursor:pointer;transition-delay:.36s">
+        <div class="tc-icon">✍️</div>
+        <div class="tc-title">AI Writer</div>
+        <div class="tc-desc">Generate tweets, Twitter threads, blog posts, whitepapers, marketing copy, announcements, and more. Multiple tones.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('tk')" style="cursor:pointer;transition-delay:.42s">
+        <div class="tc-icon">🔍</div>
+        <div class="tc-title">Token Analyzer</div>
+        <div class="tc-desc">Deep AI analysis of any crypto token — tokenomics, risk assessment, rug-pull check, moon potential score, and full review.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('tts')" style="cursor:pointer;transition-delay:.48s">
+        <div class="tc-icon">🗣️</div>
+        <div class="tc-title">Text to Speech</div>
+        <div class="tc-desc">Convert any text to natural voice. 13+ languages, adjustable speed, pitch, and volume. 100% free — no API key needed.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+      <div class="tool-card rev" onclick="openApp('ta')" style="cursor:pointer;transition-delay:.54s">
+        <div class="tc-icon">🎯</div>
+        <div class="tc-title">Trading Assistant</div>
+        <div class="tc-desc">AI-powered market analysis — swing trades, entry/exit points, DCA strategies, risk management, and sentiment analysis. DYOR.</div>
+        <span class="tc-tag live">Live Now</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOKEN -->
+<section id="token" class="sec" style="background:var(--bg1)">
+  <div class="container">
+    <div class="sec-label rev">Token Info</div>
+    <h2 class="sec-title rev">NO TRICKS.<br>NO TEAMS.<br>JUST COMMUNITY.</h2>
+    <p class="sec-desc rev">100% fair launch on PumpFun. No insiders, no VCs, no presale. Everyone gets the same price from day one.</p>
+    <div class="token-grid">
+      <div class="token-card rev">
+        <div class="tc2-icon">◎</div>
+        <div class="tc2-title">Solana Blockchain</div>
+        <div class="tc2-desc">Lightning-fast transactions and sub-cent fees. Perfect for high-frequency AI usage tracking and micro-payments.</div>
+        <div class="tc2-badge">~$0.001 / tx</div>
+      </div>
+      <div class="token-card rev" style="transition-delay:.08s">
+        <div class="tc2-icon">🎯</div>
+        <div class="tc2-title">PumpFun Fair Launch</div>
+        <div class="tc2-desc">Launched on PumpFun — Solana's most trusted fair launch platform. No whitelist, no presale, equal access for everyone.</div>
+        <div class="tc2-badge">100% Community</div>
+      </div>
+      <div class="token-card rev" style="transition-delay:.16s">
+        <div class="tc2-icon">🔥</div>
+        <div class="tc2-title">Zero Tax Forever</div>
+        <div class="tc2-desc">0% buy tax, 0% sell tax. No hidden fees anywhere. Buy and sell freely — what you buy is what you get.</div>
+        <div class="tc2-badge">0% / 0% Tax</div>
+      </div>
+      <div class="token-card rev" style="transition-delay:.24s">
+        <div class="tc2-icon">💊</div>
+        <div class="tc2-title">Clean Supply</div>
+        <div class="tc2-desc">1 Billion tokens, 100% in circulation at launch. No locked team tokens, no vesting schedules, no surprises.</div>
+        <div class="tc2-badge">1,000,000,000</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO BUY -->
+<section id="buy" class="sec">
+  <div class="container">
+    <div class="sec-label rev">How to Buy</div>
+    <h2 class="sec-title rev">GET $NEXAI IN 4 STEPS</h2>
+    <div class="steps-grid">
+      <div class="step-card rev">
+        <div class="step-num">1</div>
+        <div class="step-title">Get Phantom Wallet</div>
+        <div class="step-desc">Download Phantom from phantom.app. Create your wallet and back up your seed phrase safely.</div>
+        <div class="step-tag">phantom.app</div>
+      </div>
+      <div class="step-card rev" style="transition-delay:.08s">
+        <div class="step-num">2</div>
+        <div class="step-title">Buy Solana (SOL)</div>
+        <div class="step-desc">Buy SOL from Coinbase, Binance, or any exchange and send it to your Phantom wallet.</div>
+        <div class="step-tag">Any Exchange</div>
+      </div>
+      <div class="step-card rev" style="transition-delay:.16s">
+        <div class="step-num">3</div>
+        <div class="step-title">Go to PumpFun</div>
+        <div class="step-desc">Visit pump.fun and paste the contract address below to find $NEXAI instantly.</div>
+        <div class="step-tag">pump.fun</div>
+      </div>
+      <div class="step-card rev" style="transition-delay:.24s">
+        <div class="step-num">4</div>
+        <div class="step-title">Swap &amp; Hold</div>
+        <div class="step-desc">Enter your SOL amount and swap for $NEXAI. 0% tax — you keep 100% of what you buy.</div>
+        <div class="step-tag">0% Tax</div>
+      </div>
+    </div>
+    <div class="ca-box rev">
+      <div class="ca-live"><span class="ndot"></span> LIVE — CONTRACT ADDRESS</div>
+      <div class="ca-addr" onclick="copyCA()" id="ca-box-addr">Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump</div>
+      <div class="ca-hint">📋 Click to copy · Solana Network</div>
+      <div class="ca-actions">
+        <a class="btn-primary" href="https://pump.fun/coin/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">🔥 Buy on PumpFun</a>
+        <a class="btn-ghost" href="https://dexscreener.com/solana/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">📊 DexScreener</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ROADMAP -->
+<section id="roadmap" class="sec" style="background:var(--bg1)">
+  <div class="container">
+    <div class="sec-label rev">Roadmap</div>
+    <h2 class="sec-title rev">PUMPFUN TO<br>TIER-1 EXCHANGES</h2>
+    <div class="roadmap-grid">
+      <div class="rm-card done rev">
+        <div class="rm-badge gn">✓ Done</div>
+        <div class="rm-phase">Phase 1</div>
+        <div class="rm-title">Build</div>
+        <div class="rm-items">
+          <div class="rm-item done-item">✓ AI Studio (4 tools live)</div>
+          <div class="rm-item done-item">✓ Website live</div>
+          <div class="rm-item done-item">✓ X / Twitter active</div>
+          <div class="rm-item done-item">✓ Community setup</div>
+        </div>
+      </div>
+      <div class="rm-card active rev" style="transition-delay:.08s">
+        <div class="rm-badge vt">⚡ Next</div>
+        <div class="rm-phase">Phase 2</div>
+        <div class="rm-title">Growth</div>
+        <div class="rm-items">
+          <div class="rm-item active-item">→ PumpFun launched</div>
+          <div class="rm-item active-item">→ Hit bonding curve</div>
+          <div class="rm-item active-item">→ Raydium listing</div>
+          <div class="rm-item">1,000 holders</div>
+        </div>
+      </div>
+      <div class="rm-card rev" style="transition-delay:.16s">
+        <div class="rm-phase">Phase 3</div>
+        <div class="rm-title">Expand</div>
+        <div class="rm-items">
+          <div class="rm-item">CoinGecko listing</div>
+          <div class="rm-item">CoinMarketCap listing</div>
+          <div class="rm-item">5K holders → Music AI</div>
+          <div class="rm-item">10K holders → Video AI</div>
+        </div>
+      </div>
+      <div class="rm-card rev" style="transition-delay:.24s">
+        <div class="rm-phase">Phase 4</div>
+        <div class="rm-title">Exchanges</div>
+        <div class="rm-items">
+          <div class="rm-item">Gate.io / MEXC listing</div>
+          <div class="rm-item">Token burn mechanism</div>
+          <div class="rm-item">Paid AI premium tier</div>
+          <div class="rm-item">Tier-1 CEX target</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="logo" href="#" style="text-decoration:none">
+          <div class="logo-icon">
+            <svg width="32" height="32" viewBox="0 0 36 36" style="overflow:visible"><circle cx="18" cy="18" r="7.5" fill="#9945FF"/><ellipse cx="18" cy="18" rx="16" ry="6.5" fill="none" stroke="#14F195" stroke-width="1.8" transform="rotate(-18 18 18)" style="transform-origin:18px 18px;animation:osp 8s linear infinite"/><text x="18" y="22" text-anchor="middle" fill="#fff" font-size="6" font-weight="700" font-family="system-ui">NX</text></svg>
+          </div>
+          NEX<span style="color:var(--g)">AI</span>
+        </a>
+        <p>Solana AI utility token. Fair launched on PumpFun — zero tax, 100% community, no presale, no team allocation.</p>
+        <a class="social-link" href="https://x.com/nexai2026" target="_blank" rel="noopener" style="margin-top:18px;width:fit-content">𝕏 Follow @nexai2026</a>
+      </div>
+      <div class="footer-col">
+        <h4>AI Studio</h4>
+        <a href="#" onclick="openApp('c');return false">🤖 AI Chat</a>
+        <a href="#" onclick="openApp('i');return false">🎨 Image Studio</a>
+        <a href="#" onclick="openApp('o');return false">💻 Code Studio</a>
+        <a href="#" onclick="openApp('tr');return false">🌐 Translator (130+ langs)</a>
+      </div>
+      <div class="footer-col">
+        <h4>Token</h4>
+        <a href="https://pump.fun/coin/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">🔥 Buy on PumpFun</a>
+        <a href="https://dexscreener.com/solana/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump" target="_blank" rel="noopener">📊 DexScreener</a>
+        <a href="#buy">Contract Address</a>
+        <a href="#buy">How to Buy</a>
+        <a href="https://x.com/nexai2026" target="_blank" rel="noopener">𝕏 Community</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2025 NEXAI · Solana · 0% Tax · Fair Launch · Not financial advice · DYOR</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">◎ BUILT ON SOLANA</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ─────────────────────────────────────── -->
+<!-- APP OVERLAY -->
+<!-- ─────────────────────────────────────── -->
+<div id="app">
+  <div id="sidebar">
+    <div style="width:36px;height:36px;margin:0 auto 20px;flex-shrink:0">
+      <svg width="36" height="36" viewBox="0 0 36 36" style="overflow:visible"><circle cx="18" cy="18" r="7.5" fill="#9945FF"/><ellipse cx="18" cy="18" rx="16" ry="6.5" fill="none" stroke="#14F195" stroke-width="1.8" transform="rotate(-18 18 18)" style="transform-origin:18px 18px;animation:osp 8s linear infinite"/><text x="18" y="22" text-anchor="middle" fill="#fff" font-size="6" font-weight="700" font-family="system-ui">NX</text></svg>
+    </div>
+    <div class="sb-toggle" id="sb-toggle" onclick="toggleSB()">›</div>
+    <div class="sb-nav">
+      <div class="sb-item on" data-p="c" onclick="switchPanel('c')"><div class="sb-bar"></div><div class="sb-icon">🤖</div><div class="sb-label">AI Chat</div></div>
+      <div class="sb-item" data-p="i" onclick="switchPanel('i')"><div class="sb-bar"></div><div class="sb-icon">🎨</div><div class="sb-label">Image Studio</div></div>
+      <div class="sb-item" data-p="o" onclick="switchPanel('o')"><div class="sb-bar"></div><div class="sb-icon">💻</div><div class="sb-label">Code Studio</div></div>
+      <div class="sb-item" data-p="tr" onclick="switchPanel('tr')"><div class="sb-bar"></div><div class="sb-icon">🌐</div><div class="sb-label">Translator</div></div>
+      <div class="sb-item" data-p="wr" onclick="switchPanel('wr')"><div class="sb-bar"></div><div class="sb-icon">✍️</div><div class="sb-label">AI Writer</div></div>
+      <div class="sb-item" data-p="tk" onclick="switchPanel('tk')"><div class="sb-bar"></div><div class="sb-icon">🔍</div><div class="sb-label">Token Analyzer</div></div>
+      <div class="sb-item" data-p="tts" onclick="switchPanel('tts')"><div class="sb-bar"></div><div class="sb-icon">🗣️</div><div class="sb-label">Text to Speech</div></div>
+      <div class="sb-item" data-p="ta" onclick="switchPanel('ta')"><div class="sb-bar"></div><div class="sb-icon">🎯</div><div class="sb-label">Trading Assistant</div></div>
+    </div>
+    <div class="sb-bottom">
+      <div class="sb-close" onclick="closeApp()">
+        <div class="sb-close-icon">✕</div>
+        <div class="sb-close-label">Close</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="panels">
+
+    <!-- CHAT -->
+    <div class="panel on" id="panel-c">
+      <div class="panel-head">
+        <div class="panel-title">🤖 AI Chat</div>
+        <div class="panel-badge">NEXAI · POWERED BY AI</div>
+      </div>
+      <div id="chat-msgs">
+        <div class="msg">
+          <div class="msg-avatar ai">🤖</div>
+          <div class="msg-bubble ai">Hey! I'm NEXAI — your AI assistant. Ask me anything about Solana, DeFi, crypto trading, coding, or anything else. I'm here to help! 🚀<br><br><span style="font-size:12px;color:var(--tx3)">Try: "What is PumpFun?" or "Write a Solana trading bot"</span></div>
+        </div>
+      </div>
+      <div class="chat-suggestions">
+        <div class="sug-chip" onclick="sendSuggestion(this)">What is $NEXAI?</div>
+        <div class="sug-chip" onclick="sendSuggestion(this)">How does PumpFun work?</div>
+        <div class="sug-chip" onclick="sendSuggestion(this)">Explain Solana DeFi</div>
+        <div class="sug-chip" onclick="sendSuggestion(this)">Best crypto wallets?</div>
+      </div>
+      <div class="chat-input-wrap">
+        <textarea id="chat-input" class="chat-input" rows="1" placeholder="Ask anything about Solana, DeFi, crypto, coding..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}" oninput="autoResize(this)"></textarea>
+        <button class="chat-send" onclick="sendChat()">↑</button>
+      </div>
+    </div>
+
+    <!-- IMAGE STUDIO -->
+    <div class="panel" id="panel-i">
+      <div class="panel-head">
+        <div class="panel-title">🎨 Image Studio</div>
+        <div class="panel-badge">POWERED BY AI · FREE</div>
+      </div>
+      <div class="img-panel-inner">
+        <div class="img-controls">
+          <div>
+            <div class="form-label">Image Prompt</div>
+            <textarea class="form-textarea" id="img-prompt" rows="5" placeholder="Describe your image... e.g. 'A futuristic Solana blockchain city at night, neon green lights, cyberpunk style'"></textarea>
+          </div>
+          <div>
+            <div class="form-label">Style</div>
+            <select class="form-select" id="img-style">
+              <option value="">Default</option>
+              <option value=", photorealistic, ultra detailed, 8k">📷 Photorealistic</option>
+              <option value=", digital art, vibrant colors, artstation">🎨 Digital Art</option>
+              <option value=", cyberpunk, neon lights, dark atmosphere">🌆 Cyberpunk</option>
+              <option value=", anime style, studio ghibli, detailed">🌸 Anime</option>
+              <option value=", oil painting, impressionist, masterpiece">🖼️ Oil Painting</option>
+              <option value=", minimalist, clean, vector art, flat design">✦ Minimalist</option>
+              <option value=", sci-fi concept art, futuristic, detailed">🚀 Sci-Fi</option>
+              <option value=", fantasy art, magical, epic, detailed">⚔️ Fantasy</option>
+              <option value=", neon colors, glitch art, retrowave">💜 Retrowave</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Size</div>
+            <select class="form-select" id="img-size">
+              <option value="512x512">512 × 512</option>
+              <option value="768x768">768 × 768</option>
+              <option value="1024x1024">1024 × 1024 (HD)</option>
+              <option value="1024x576">1024 × 576 (Widescreen)</option>
+              <option value="576x1024">576 × 1024 (Portrait)</option>
+            </select>
+          </div>
+          <button class="action-btn" id="img-gen-btn" onclick="generateImage()">🎨 Generate Image</button>
+          <div class="template-btns">
+            <button class="tpl-btn" onclick="setImgPrompt('Solana blockchain futuristic city skyline, neon green and purple, cyberpunk')">🌆 City</button>
+            <button class="tpl-btn" onclick="setImgPrompt('Crypto bull running on blockchain digital art, neon colors')">🐂 Bull</button>
+            <button class="tpl-btn" onclick="setImgPrompt('Abstract AI neural network, glowing nodes, dark background, purple and green')">🧠 AI Art</button>
+            <button class="tpl-btn" onclick="setImgPrompt('Solana moon rocket launch, space, stars, epic, cinematic')">🚀 Moon</button>
+          </div>
+        </div>
+        <div class="img-output-area" id="img-output-area">
+          <div id="img-placeholder" class="img-placeholder">
+            <div class="big-icon">🎨</div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;color:var(--tx2)">Your Image Appears Here</div>
+            <div style="font-size:12px;color:var(--tx3);margin-top:6px;font-family:'JetBrains Mono',monospace">Enter a prompt and click generate</div>
+          </div>
+          <div id="img-loading" style="display:none;flex-direction:column;align-items:center;gap:16px">
+            <div class="img-spinner"></div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--g)">GENERATING...</div>
+          </div>
+          <img id="img-result" class="img-result" style="display:none" alt="Generated image">
+          <div id="img-actions" style="display:none;margin-top:14px;display:none;gap:8px">
+            <button class="action-btn-ghost" onclick="downloadImage()" style="padding:9px 18px;width:auto">⬇ Download</button>
+            <button class="action-btn-ghost" onclick="regenerateImage()" style="padding:9px 18px;width:auto">🔄 Regenerate</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CODE STUDIO -->
+    <div class="panel" id="panel-o">
+      <div class="panel-head">
+        <div class="panel-title">💻 Code Studio</div>
+        <div class="panel-badge">30+ LANGUAGES · FREE</div>
+      </div>
+      <div class="code-panel-inner">
+        <div class="img-controls">
+          <div>
+            <div class="form-label">What to Build</div>
+            <textarea class="form-textarea" id="code-prompt" rows="6" placeholder="Describe the code... e.g. 'Solana wallet balance checker using web3.js' or 'DeFi arbitrage bot for Raydium'"></textarea>
+          </div>
+          <div>
+            <div class="form-label">Language</div>
+            <select class="form-select" id="code-lang">
+              <option value="JavaScript">JavaScript</option>
+              <option value="TypeScript">TypeScript</option>
+              <option value="Python">Python</option>
+              <option value="Rust">Rust</option>
+              <option value="Solidity">Solidity</option>
+              <option value="Go">Go</option>
+              <option value="Java">Java</option>
+              <option value="C++">C++</option>
+              <option value="SQL">SQL</option>
+              <option value="Bash">Bash / Shell</option>
+            </select>
+          </div>
+          <button class="action-btn" id="code-gen-btn" onclick="generateCode()">💻 Generate Code</button>
+          <div>
+            <div class="form-label" style="margin-bottom:8px">Templates</div>
+            <div class="template-btns">
+              <button class="tpl-btn" onclick="setCodeTpl('Solana wallet balance checker using web3.js')">◎ Wallet</button>
+              <button class="tpl-btn" onclick="setCodeTpl('Raydium DEX swap function in JavaScript')">💱 Swap</button>
+              <button class="tpl-btn" onclick="setCodeTpl('Token price tracker for Solana tokens using Birdeye API')">📊 Price</button>
+              <button class="tpl-btn" onclick="setCodeTpl('Create a smart contract in Solidity for an ERC-20 token')">📜 Contract</button>
+              <button class="tpl-btn" onclick="setCodeTpl('REST API with Node.js and Express for a crypto portfolio tracker')">🌐 API</button>
+              <button class="tpl-btn" onclick="setCodeTpl('Python bot to track new PumpFun token launches')">🤖 Bot</button>
+            </div>
+          </div>
+        </div>
+        <div class="code-output-area" id="code-output-area">
+          <div class="code-output-head">
+            <div class="code-actions">
+              <button class="code-action-btn gr" onclick="copyCode()">📋 Copy</button>
+              <button class="code-action-btn" onclick="explainCode()">📖 Explain</button>
+              <button class="code-action-btn" onclick="downloadCode()">⬇ Download</button>
+            </div>
+            <div id="code-lines" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3)"></div>
+          </div>
+          <div class="code-output-body" id="code-output">
+            <div class="code-placeholder">
+              <div style="font-size:42px;opacity:.15">💻</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--tx2);font-weight:600">Generated code appears here</div>
+              <div style="font-size:12px;color:var(--tx3);font-family:'JetBrains Mono',monospace">30+ languages supported</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRANSLATOR -->
+    <div class="panel" id="panel-tr">
+      <div class="panel-head">
+        <div class="panel-title">🌐 AI Translator</div>
+        <div class="panel-badge">130+ LANGUAGES · FREE</div>
+      </div>
+      <div class="quick-langs">
+        <button class="ql-btn" onclick="quickLang('Spanish')">🇪🇸 ES</button>
+        <button class="ql-btn" onclick="quickLang('French')">🇫🇷 FR</button>
+        <button class="ql-btn" onclick="quickLang('German')">🇩🇪 DE</button>
+        <button class="ql-btn" onclick="quickLang('Japanese')">🇯🇵 JA</button>
+        <button class="ql-btn" onclick="quickLang('Chinese Simplified')">🇨🇳 ZH</button>
+        <button class="ql-btn" onclick="quickLang('Korean')">🇰🇷 KO</button>
+        <button class="ql-btn" onclick="quickLang('Arabic (Modern Standard)')">🇸🇦 AR</button>
+        <button class="ql-btn" onclick="quickLang('Russian')">🇷🇺 RU</button>
+        <button class="ql-btn" onclick="quickLang('Portuguese (Brazilian)')">🇧🇷 PT</button>
+        <button class="ql-btn" onclick="quickLang('Hindi')">🇮🇳 HI</button>
+        <button class="ql-btn" onclick="quickLang('Turkish')">🇹🇷 TR</button>
+        <button class="ql-btn" onclick="quickLang('Swahili')">🌍 SW</button>
+      </div>
+      <div class="tr-panel-inner">
+        <div class="tr-side">
+          <div class="tr-head">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tx3);letter-spacing:2px;white-space:nowrap">FROM</span>
+            <select class="tr-select" id="src-lang">
+              <option value="Auto Detect">🔍 Auto Detect</option>
+              <option value="English">English</option>
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Portuguese (Brazilian)">Portuguese</option>
+              <option value="Russian">Russian</option>
+              <option value="Chinese Simplified">Chinese</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Korean">Korean</option>
+              <option value="Arabic (Modern Standard)">Arabic</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Turkish">Turkish</option>
+              <option value="Italian">Italian</option>
+              <option value="Dutch">Dutch</option>
+              <option value="Polish">Polish</option>
+              <option value="Ukrainian">Ukrainian</option>
+              <option value="Vietnamese">Vietnamese</option>
+              <option value="Indonesian">Indonesian</option>
+              <option value="Thai">Thai</option>
+              <option value="Swahili">Swahili</option>
+              <option value="Persian">Persian</option>
+              <option value="Hebrew">Hebrew</option>
+              <option value="Greek">Greek</option>
+              <option value="Swedish">Swedish</option>
+              <option value="Norwegian">Norwegian</option>
+              <option value="Danish">Danish</option>
+              <option value="Finnish">Finnish</option>
+              <option value="Romanian">Romanian</option>
+              <option value="Hungarian">Hungarian</option>
+              <option value="Czech">Czech</option>
+              <option value="Filipino">Filipino</option>
+              <option value="Malay">Malay</option>
+              <option value="Bengali">Bengali</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Telugu">Telugu</option>
+              <option value="Kannada">Kannada</option>
+              <option value="Urdu">Urdu</option>
+              <option value="Amharic">Amharic</option>
+              <option value="Hausa">Hausa</option>
+              <option value="Yoruba">Yoruba</option>
+              <option value="Zulu">Zulu</option>
+              <option value="Afrikaans">Afrikaans</option>
+              <option value="Somali">Somali</option>
+            </select>
+            <button class="swap-btn" onclick="swapLangs()">⇌</button>
+          </div>
+          <textarea class="tr-textarea" id="tr-input" placeholder="Type or paste text to translate..." oninput="updateCharCount()" onkeydown="if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();doTranslate()}"></textarea>
+          <div class="tr-foot">
+            <span class="tr-char" id="char-count">0 / 3000</span>
+            <div style="display:flex;gap:6px">
+              <button class="mini-btn" onclick="trEl('tr-input').value='';updateCharCount()">Clear</button>
+              <button class="mini-btn" onclick="pasteText()">📋 Paste</button>
+            </div>
+          </div>
+          <button class="tr-btn-main" id="tr-btn" onclick="doTranslate()">🌐 Translate</button>
+        </div>
+        <div class="tr-side" style="border-right:none">
+          <div class="tr-head">
+            <span style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--tx3);letter-spacing:2px;white-space:nowrap">TO</span>
+            <select class="tr-select" id="tgt-lang">
+              <option value="Spanish">Spanish</option>
+              <option value="French">French</option>
+              <option value="German">German</option>
+              <option value="Arabic (Modern Standard)">Arabic</option>
+              <option value="Chinese Simplified">Chinese Simplified</option>
+              <option value="Japanese">Japanese</option>
+              <option value="Korean">Korean</option>
+              <option value="Russian">Russian</option>
+              <option value="Portuguese (Brazilian)">Portuguese (Brazil)</option>
+              <option value="Turkish">Turkish</option>
+              <option value="Swahili">Swahili</option>
+              <option value="English">English</option>
+              <option value="Italian">Italian</option>
+              <option value="Dutch">Dutch</option>
+              <option value="Polish">Polish</option>
+              <option value="Ukrainian">Ukrainian</option>
+              <option value="Vietnamese">Vietnamese</option>
+              <option value="Indonesian">Indonesian</option>
+              <option value="Thai">Thai</option>
+              <option value="Persian">Persian</option>
+              <option value="Hebrew">Hebrew</option>
+              <option value="Greek">Greek</option>
+              <option value="Swedish">Swedish</option>
+              <option value="Hindi">Hindi</option>
+              <option value="Bengali">Bengali</option>
+              <option value="Tamil">Tamil</option>
+              <option value="Urdu">Urdu</option>
+              <option value="Filipino">Filipino</option>
+              <option value="Malay">Malay</option>
+              <option value="Amharic">Amharic</option>
+              <option value="Hausa">Hausa</option>
+              <option value="Yoruba">Yoruba</option>
+              <option value="Zulu">Zulu</option>
+              <option value="Afrikaans">Afrikaans</option>
+              <option value="Somali">Somali</option>
+              <option value="Romanian">Romanian</option>
+              <option value="Hungarian">Hungarian</option>
+              <option value="Czech">Czech</option>
+              <option value="Finnish">Finnish</option>
+              <option value="Norwegian">Norwegian</option>
+              <option value="Danish">Danish</option>
+              <option value="Hawaiian">Hawaiian</option>
+              <option value="Maori">Māori</option>
+              <option value="Samoan">Samoan</option>
+              <option value="Kannada">Kannada</option>
+              <option value="Telugu">Telugu</option>
+              <option value="Chinese Traditional">Chinese Traditional</option>
+              <option value="Burmese">Burmese</option>
+              <option value="Mongolian">Mongolian</option>
+              <option value="Kazakh">Kazakh</option>
+              <option value="Uzbek">Uzbek</option>
+              <option value="Azerbaijani">Azerbaijani</option>
+              <option value="Georgian">Georgian</option>
+              <option value="Armenian">Armenian</option>
+              <option value="Croatian">Croatian</option>
+              <option value="Serbian">Serbian</option>
+              <option value="Bulgarian">Bulgarian</option>
+              <option value="Slovak">Slovak</option>
+              <option value="Slovenian">Slovenian</option>
+              <option value="Catalan">Catalan</option>
+              <option value="Icelandic">Icelandic</option>
+              <option value="Welsh">Welsh</option>
+              <option value="Irish">Irish</option>
+              <option value="Pashto">Pashto</option>
+              <option value="Haitian Creole">Haitian Creole</option>
+              <option value="Kinyarwanda">Kinyarwanda</option>
+              <option value="Igbo">Igbo</option>
+            </select>
+          </div>
+          <div id="detect-badge" style="display:none" class="detect-badge">🔍 Detected: <span id="detected-lang"></span></div>
+          <div style="flex:1;overflow-y:auto;position:relative;min-height:100px">
+            <div id="tr-loading" style="display:none;position:absolute;inset:0;background:var(--bg);flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:2">
+              <div class="img-spinner"></div>
+              <div id="tr-lang-info" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g)">Translating...</div>
+            </div>
+            <div id="tr-placeholder" class="tr-output-placeholder">
+              <div style="font-size:42px;opacity:.15">🌐</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--tx2);font-weight:600">Translation appears here</div>
+              <div style="font-size:11px;color:var(--g);font-family:'JetBrains Mono',monospace;margin-top:4px">130+ languages · Free</div>
+            </div>
+            <div id="tr-output" class="tr-output-text" style="display:none"></div>
+          </div>
+          <div id="tr-actions" class="tr-actions-row" style="display:none">
+            <button class="mini-btn" onclick="copyTranslation()">📋 Copy</button>
+            <button class="mini-btn" style="border-color:var(--br2);color:var(--g)" onclick="reverseTranslate()">⇌ Reverse</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ✍️ AI WRITER -->
+    <div class="panel" id="panel-wr">
+      <div class="panel-head">
+        <div class="panel-title">✍️ AI Writer</div>
+        <div class="panel-badge">TWEETS · BLOGS · THREADS · FREE</div>
+      </div>
+      <div class="img-panel-inner">
+        <div class="img-controls">
+          <div>
+            <div class="form-label">Content Type</div>
+            <select class="form-select" id="wr-type" onchange="updateWriterPlaceholder()">
+              <option value="tweet">🐦 Tweet (280 chars)</option>
+              <option value="thread">🧵 Twitter Thread (5–8 tweets)</option>
+              <option value="blog">📝 Blog Post</option>
+              <option value="whitepaper">📄 Token Whitepaper</option>
+              <option value="marketing">📣 Marketing Copy</option>
+              <option value="announcement">📢 Announcement Post</option>
+              <option value="bio">👤 Crypto Bio / About</option>
+              <option value="reddit">💬 Reddit Post</option>
+              <option value="email">📧 Email Newsletter</option>
+              <option value="roadmap">🗺️ Roadmap Description</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Topic / Instructions</div>
+            <textarea class="form-textarea" id="wr-prompt" rows="5" placeholder="e.g. '$NEXAI token launch on Solana, AI utility, fair launch, 0% tax'"></textarea>
+          </div>
+          <div>
+            <div class="form-label">Tone</div>
+            <select class="form-select" id="wr-tone">
+              <option value="hype">🔥 Hype / Bullish</option>
+              <option value="professional">💼 Professional</option>
+              <option value="casual">😎 Casual / Friendly</option>
+              <option value="educational">📚 Educational</option>
+              <option value="urgent">⚡ Urgent / FOMO</option>
+              <option value="funny">😂 Funny / Meme</option>
+            </select>
+          </div>
+          <button class="action-btn" id="wr-btn" onclick="generateContent()">✍️ Generate Content</button>
+          <div class="template-btns">
+            <button class="tpl-btn" onclick="setWriterTpl('tweet','$NEXAI new AI utility token on Solana, free AI tools, 0% tax, fair launch on PumpFun')">🚀 Launch</button>
+            <button class="tpl-btn" onclick="setWriterTpl('thread','Why $NEXAI is the next big AI utility token on Solana')">🧵 Thread</button>
+            <button class="tpl-btn" onclick="setWriterTpl('marketing','NEXAI AI platform: free chat, image, code, translate tools powered by Solana token')">📣 Marketing</button>
+            <button class="tpl-btn" onclick="setWriterTpl('announcement','NEXAI token is now live on PumpFun with bonding curve')">📢 Announce</button>
+          </div>
+        </div>
+        <div class="code-output-area" id="wr-output-area">
+          <div class="code-output-head">
+            <div class="code-actions">
+              <button class="code-action-btn gr" onclick="copyWriter()">📋 Copy</button>
+              <button class="code-action-btn" onclick="regenerateContent()">🔄 Regenerate</button>
+            </div>
+            <div id="wr-word-count" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--tx3)"></div>
+          </div>
+          <div class="code-output-body" id="wr-output">
+            <div class="code-placeholder">
+              <div style="font-size:42px;opacity:.15">✍️</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--tx2);font-weight:600">Generated content appears here</div>
+              <div style="font-size:12px;color:var(--tx3);font-family:'JetBrains Mono',monospace">Tweets · Threads · Blogs · Whitepapers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🔍 TOKEN ANALYZER -->
+    <div class="panel" id="panel-tk">
+      <div class="panel-head">
+        <div class="panel-title">🔍 Token Analyzer</div>
+        <div class="panel-badge">DEEP AI ANALYSIS · FREE</div>
+      </div>
+      <div class="img-panel-inner">
+        <div class="img-controls">
+          <div>
+            <div class="form-label">Token Name or Contract Address</div>
+            <textarea class="form-textarea" id="tk-token" rows="2" placeholder="e.g. 'NEXAI', 'Bonk', 'WIF', or paste a CA address"></textarea>
+          </div>
+          <div>
+            <div class="form-label">Analysis Type</div>
+            <select class="form-select" id="tk-type">
+              <option value="full">🔬 Full Deep Analysis</option>
+              <option value="risk">⚠️ Risk Assessment</option>
+              <option value="tokenomics">📊 Tokenomics Review</option>
+              <option value="community">👥 Community & Hype</option>
+              <option value="technical">📈 Technical Analysis</option>
+              <option value="compare">⚖️ Compare with Market</option>
+              <option value="scam">🚨 Rug Pull / Scam Check</option>
+              <option value="potential">🚀 Moon Potential Score</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Extra Info (optional)</div>
+            <textarea class="form-textarea" id="tk-extra" rows="3" placeholder="Paste any extra info: supply, team, utility, launch date..."></textarea>
+          </div>
+          <button class="action-btn" id="tk-btn" onclick="analyzeToken()">🔍 Analyze Token</button>
+          <div class="template-btns">
+            <button class="tpl-btn" onclick="setTkTpl('NEXAI','full')">🟢 NEXAI</button>
+            <button class="tpl-btn" onclick="setTkTpl('Bonk','full')">🐕 BONK</button>
+            <button class="tpl-btn" onclick="setTkTpl('dogwifhat WIF','full')">🎩 WIF</button>
+            <button class="tpl-btn" onclick="setTkTpl('PEPE','risk')">🐸 PEPE</button>
+          </div>
+        </div>
+        <div class="code-output-area" id="tk-output-area">
+          <div class="code-output-head">
+            <div class="code-actions">
+              <button class="code-action-btn gr" onclick="copyTkOutput()">📋 Copy</button>
+            </div>
+          </div>
+          <div class="code-output-body" id="tk-output">
+            <div class="code-placeholder">
+              <div style="font-size:42px;opacity:.15">🔍</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--tx2);font-weight:600">Analysis appears here</div>
+              <div style="font-size:12px;color:var(--tx3);font-family:'JetBrains Mono',monospace">AI-powered deep token research</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🗣️ TEXT TO SPEECH -->
+    <div class="panel" id="panel-tts">
+      <div class="panel-head">
+        <div class="panel-title">🗣️ Text to Speech</div>
+        <div class="panel-badge">BROWSER BUILT-IN · 100% FREE · NO API</div>
+      </div>
+      <div style="flex:1;overflow-y:auto;padding:24px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div>
+            <div class="form-label">Voice Language</div>
+            <select class="form-select" id="tts-lang" onchange="loadVoices()">
+              <option value="en-US">🇺🇸 English (US)</option>
+              <option value="en-GB">🇬🇧 English (UK)</option>
+              <option value="es-ES">🇪🇸 Spanish</option>
+              <option value="fr-FR">🇫🇷 French</option>
+              <option value="de-DE">🇩🇪 German</option>
+              <option value="it-IT">🇮🇹 Italian</option>
+              <option value="pt-BR">🇧🇷 Portuguese</option>
+              <option value="ja-JP">🇯🇵 Japanese</option>
+              <option value="ko-KR">🇰🇷 Korean</option>
+              <option value="zh-CN">🇨🇳 Chinese</option>
+              <option value="ar-SA">🇸🇦 Arabic</option>
+              <option value="hi-IN">🇮🇳 Hindi</option>
+              <option value="ru-RU">🇷🇺 Russian</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Voice</div>
+            <select class="form-select" id="tts-voice"></select>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+          <div>
+            <div class="form-label">Speed</div>
+            <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" style="width:100%;accent-color:var(--g)" oninput="document.getElementById('tts-rate-val').textContent=this.value+'x'">
+            <div id="tts-rate-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);text-align:center;margin-top:4px">1x</div>
+          </div>
+          <div>
+            <div class="form-label">Pitch</div>
+            <input type="range" id="tts-pitch" min="0.5" max="2" step="0.1" value="1" style="width:100%;accent-color:var(--g)" oninput="document.getElementById('tts-pitch-val').textContent=this.value">
+            <div id="tts-pitch-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);text-align:center;margin-top:4px">1</div>
+          </div>
+          <div>
+            <div class="form-label">Volume</div>
+            <input type="range" id="tts-vol" min="0" max="1" step="0.1" value="1" style="width:100%;accent-color:var(--g)" oninput="document.getElementById('tts-vol-val').textContent=Math.round(this.value*100)+'%'">
+            <div id="tts-vol-val" style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--g);text-align:center;margin-top:4px">100%</div>
+          </div>
+        </div>
+        <div>
+          <div class="form-label">Text to Speak</div>
+          <textarea class="form-textarea" id="tts-text" rows="8" placeholder="Type or paste text here... e.g. 'NEXAI is the future of AI on Solana. Join the revolution today!'">NEXAI is the future of AI on Solana. Four powerful AI tools — chat, image generation, code studio, and translation — all completely free. Join the revolution. Buy $NEXAI on PumpFun today!</textarea>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="action-btn" id="tts-play-btn" onclick="speakText()" style="flex:1;min-width:120px">▶ Speak</button>
+          <button class="action-btn-ghost" onclick="pauseSpeech()" style="flex:1;min-width:100px">⏸ Pause</button>
+          <button class="action-btn-ghost" onclick="stopSpeech()" style="flex:1;min-width:100px">⏹ Stop</button>
+        </div>
+        <div id="tts-status" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tx3);text-align:center;padding:8px">Ready to speak</div>
+        <div style="padding:16px;background:rgba(20,241,149,.04);border:1px solid rgba(20,241,149,.12);border-radius:10px">
+          <div class="form-label" style="margin-bottom:10px">Quick Phrases</div>
+          <div class="template-btns">
+            <button class="tpl-btn" onclick="setTtsText('NEXAI is live on Solana! Buy now on PumpFun. Zero tax, fair launch, AI utility token.')">🚀 NEXAI Launch</button>
+            <button class="tpl-btn" onclick="setTtsText('Solana is the fastest blockchain in the world. NEXAI is built on Solana for ultra-fast, ultra-cheap transactions.')">◎ Solana</button>
+            <button class="tpl-btn" onclick="setTtsText('GM crypto frens! Have you checked out NEXAI today? Free AI tools powered by the community.')">☀️ GM</button>
+            <button class="tpl-btn" onclick="setTtsText('When moon? When Lambo? NEXAI to the moon! One hundred X incoming!')">🌙 Moon</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 🎯 TRADING ASSISTANT -->
+    <div class="panel" id="panel-ta">
+      <div class="panel-head">
+        <div class="panel-title">🎯 Trading Assistant</div>
+        <div class="panel-badge">MARKET ANALYSIS · NOT FINANCIAL ADVICE</div>
+      </div>
+      <div class="img-panel-inner">
+        <div class="img-controls">
+          <div>
+            <div class="form-label">Token / Pair</div>
+            <textarea class="form-textarea" id="ta-token" rows="2" placeholder="e.g. 'SOL/USD', 'BTC', 'NEXAI on Solana', 'ETH/BTC'"></textarea>
+          </div>
+          <div>
+            <div class="form-label">Analysis Mode</div>
+            <select class="form-select" id="ta-mode">
+              <option value="swing">📊 Swing Trade Analysis</option>
+              <option value="scalp">⚡ Scalp Trade Setup</option>
+              <option value="entry">🎯 Entry / Exit Points</option>
+              <option value="sentiment">💭 Market Sentiment</option>
+              <option value="support">📐 Support & Resistance</option>
+              <option value="dca">📅 DCA Strategy</option>
+              <option value="risk">⚖️ Risk Management</option>
+              <option value="portfolio">💼 Portfolio Allocation</option>
+              <option value="compare">⚔️ Token Comparison</option>
+              <option value="trend">📈 Trend Analysis</option>
+            </select>
+          </div>
+          <div>
+            <div class="form-label">Market Context (optional)</div>
+            <textarea class="form-textarea" id="ta-context" rows="3" placeholder="Current price, recent news, your position size, risk tolerance..."></textarea>
+          </div>
+          <button class="action-btn" id="ta-btn" onclick="analyzeTrading()">🎯 Analyze</button>
+          <div style="padding:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);border-radius:8px;margin-top:4px">
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#fcd34d;letter-spacing:1px">⚠️ NOT FINANCIAL ADVICE</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:4px;line-height:1.5">AI analysis for educational purposes only. Always DYOR and trade responsibly.</div>
+          </div>
+          <div class="template-btns">
+            <button class="tpl-btn" onclick="setTaTpl('SOL/USD','swing')">◎ SOL</button>
+            <button class="tpl-btn" onclick="setTaTpl('BTC/USD','swing')">₿ BTC</button>
+            <button class="tpl-btn" onclick="setTaTpl('NEXAI Solana meme token','entry')">🟢 NEXAI</button>
+            <button class="tpl-btn" onclick="setTaTpl('ETH/USD','dca')">Ξ ETH</button>
+          </div>
+        </div>
+        <div class="code-output-area" id="ta-output-area">
+          <div class="code-output-head">
+            <div class="code-actions">
+              <button class="code-action-btn gr" onclick="copyTaOutput()">📋 Copy</button>
+            </div>
+            <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:#fcd34d">DYOR · NOT FINANCIAL ADVICE</div>
+          </div>
+          <div class="code-output-body" id="ta-output">
+            <div class="code-placeholder">
+              <div style="font-size:42px;opacity:.15">🎯</div>
+              <div style="font-family:'Rajdhani',sans-serif;font-size:16px;color:var(--tx2);font-weight:600">Analysis appears here</div>
+              <div style="font-size:12px;color:var(--tx3);font-family:'JetBrains Mono',monospace">AI-powered market intelligence</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panels -->
+</div><!-- /app -->
+
+<script>
+// ─── CONSTANTS ───
+const CA = 'Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump';
+
+// ─── CURSOR ───
+var cur = document.getElementById('cursor');
+var ring = document.querySelector('.cursor-ring');
+document.addEventListener('mousemove', function(e) {
+  cur.style.left = e.clientX + 'px';
+  cur.style.top = e.clientY + 'px';
+  ring.style.left = e.clientX + 'px';
+  ring.style.top = e.clientY + 'px';
+});
+
+// ─── THREE.JS NEURAL NETWORK ───
+(function() {
+  var canvas = document.getElementById('canvas3d');
+  if (!canvas || !window.THREE) return;
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+  var renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  camera.position.z = 60;
+
+  var N = window.innerWidth < 600 ? 60 : 120;
+  var positions = [];
+  var velocities = [];
+  var geom = new THREE.BufferGeometry();
+  var pos = new Float32Array(N * 3);
+  for (var i = 0; i < N; i++) {
+    positions.push({ x: (Math.random() - .5) * 160, y: (Math.random() - .5) * 100, z: (Math.random() - .5) * 60 });
+    velocities.push({ x: (Math.random() - .5) * .08, y: (Math.random() - .5) * .08, z: 0 });
+    pos[i * 3] = positions[i].x;
+    pos[i * 3 + 1] = positions[i].y;
+    pos[i * 3 + 2] = positions[i].z;
+  }
+  geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  var dotMat = new THREE.PointsMaterial({ color: 0x14F195, size: .6, transparent: true, opacity: .7 });
+  var dots = new THREE.Points(geom, dotMat);
+  scene.add(dots);
+
+  var lineMat = new THREE.LineBasicMaterial({ color: 0x14F195, transparent: true, opacity: .12 });
+  var lineGeom = new THREE.BufferGeometry();
+  var MAX_LINES = 600;
+  var linePos = new Float32Array(MAX_LINES * 6);
+  lineGeom.setAttribute('position', new THREE.BufferAttribute(linePos, 3));
+  var lines = new THREE.LineSegments(lineGeom, lineMat);
+  scene.add(lines);
+
+  var mouse = { x: 0, y: 0 };
+  document.addEventListener('mousemove', function(e) {
+    mouse.x = (e.clientX / window.innerWidth - .5) * 2;
+    mouse.y = -(e.clientY / window.innerHeight - .5) * 2;
+  });
+
+  function animate() {
+    requestAnimationFrame(animate);
+    var t = Date.now() * 0.0001;
+    for (var i = 0; i < N; i++) {
+      positions[i].x += velocities[i].x;
+      positions[i].y += velocities[i].y;
+      if (positions[i].x > 80) positions[i].x = -80;
+      if (positions[i].x < -80) positions[i].x = 80;
+      if (positions[i].y > 50) positions[i].y = -50;
+      if (positions[i].y < -50) positions[i].y = 50;
+      pos[i * 3] = positions[i].x;
+      pos[i * 3 + 1] = positions[i].y;
+    }
+    geom.attributes.position.needsUpdate = true;
+
+    var li = 0;
+    var DIST = 28;
+    for (var a = 0; a < N && li < MAX_LINES; a++) {
+      for (var b = a + 1; b < N && li < MAX_LINES; b++) {
+        var dx = positions[a].x - positions[b].x;
+        var dy = positions[a].y - positions[b].y;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < DIST) {
+          linePos[li * 6] = positions[a].x;
+          linePos[li * 6 + 1] = positions[a].y;
+          linePos[li * 6 + 2] = positions[a].z;
+          linePos[li * 6 + 3] = positions[b].x;
+          linePos[li * 6 + 4] = positions[b].y;
+          linePos[li * 6 + 5] = positions[b].z;
+          li++;
+        }
+      }
+    }
+    lineGeom.setDrawRange(0, li * 2);
+    lineGeom.attributes.position.needsUpdate = true;
+
+    camera.position.x += (mouse.x * 8 - camera.position.x) * 0.04;
+    camera.position.y += (mouse.y * 5 - camera.position.y) * 0.04;
+    camera.lookAt(scene.position);
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  window.addEventListener('resize', function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+})();
+
+// ─── SCROLL ANIMATIONS ───
+var revEls = document.querySelectorAll('.rev');
+var observer = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) {
+    if (e.isIntersecting) { e.target.classList.add('vis'); observer.unobserve(e.target); }
+  });
+}, { threshold: .1 });
+revEls.forEach(function(el) { observer.observe(el); });
+
+// ─── CA COPY ───
+function copyCA() {
+  navigator.clipboard.writeText(CA).then(function() {
+    var els = [document.getElementById('ca-display'), document.getElementById('ca-box-addr')];
+    els.forEach(function(el) {
+      if (el) { var o = el.textContent; el.textContent = '✓ Copied!'; setTimeout(function() { el.textContent = o; }, 2000); }
+    });
+  }).catch(function() { alert('CA: ' + CA); });
+}
+
+// ─── APP CONTROL ───
+var currentPanel = 'c';
+function openApp(p) {
+  document.getElementById('app').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  switchPanel(p || 'c');
+}
+function closeApp() {
+  document.getElementById('app').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function switchPanel(p) {
+  currentPanel = p;
+  document.querySelectorAll('.panel').forEach(function(el) { el.classList.remove('on'); });
+  document.querySelectorAll('.sb-item').forEach(function(el) { el.classList.remove('on'); });
+  var panel = document.getElementById('panel-' + p);
+  if (panel) panel.classList.add('on');
+  var sbItem = document.querySelector('.sb-item[data-p="' + p + '"]');
+  if (sbItem) sbItem.classList.add('on');
+}
+function toggleSB() {
+  var sb = document.getElementById('sidebar');
+  var tg = document.getElementById('sb-toggle');
+  sb.classList.toggle('wide');
+  tg.textContent = sb.classList.contains('wide') ? '‹' : '›';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeApp();
+});
+
+// ─── AI ENGINE ─── Anthropic API (Claude.ai preview) → Pollinations POST → GET fallback
+async function callAI(system, user) {
+  var msgs = [];
+  if (system) msgs.push({ role: 'system', content: system });
+  msgs.push({ role: 'user', content: user });
+
+  // 1: Anthropic API — works in Claude.ai sandbox (no API key needed)
+  try {
+    var abody = { model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: user }] };
+    if (system) abody.system = system;
+    var ra = await Promise.race([
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify(abody)
+      }),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},30000)})
+    ]);
+    if (ra.ok) {
+      var da = await ra.json();
+      var ta = da.content && da.content[0] && da.content[0].text;
+      if (ta) return ta.trim();
+    }
+  } catch(ea) {}
+
+  // 2: Pollinations POST — works in regular browsers
+  try {
+    var r1 = await Promise.race([
+      fetch('https://text.pollinations.ai/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: msgs, model: 'openai', private: true, seed: Math.floor(Math.random()*99999) })
+      }),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},28000)})
+    ]);
+    if (r1.ok) { var t1 = (await r1.text()).trim(); if (t1) return t1; }
+  } catch(e1) {}
+
+  // 3: Pollinations OpenAI-compat POST
+  try {
+    var r2 = await Promise.race([
+      fetch('https://api.pollinations.ai/v1/chat/completions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ model: 'openai', messages: msgs })
+      }),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},25000)})
+    ]);
+    if (r2.ok) {
+      var d2 = await r2.json();
+      var t2 = d2.choices && d2.choices[0] && d2.choices[0].message && d2.choices[0].message.content;
+      if (t2) return t2.trim();
+    }
+  } catch(e2) {}
+
+  // 4: GET fallback
+  try {
+    var prompt = (system ? system + '\n\n' : '') + user;
+    var r3 = await Promise.race([
+      fetch('https://text.pollinations.ai/' + encodeURIComponent(prompt) + '?model=openai&private=true&seed=' + Math.floor(Math.random()*99999)),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},22000)})
+    ]);
+    if (r3.ok) { var t3 = (await r3.text()).trim(); if (t3) return t3; }
+  } catch(e3) {}
+
+  throw new Error('All AI endpoints failed');
+}
+
+// ─── CHAT ───
+var chatHistory = [];
+var chatBusy = false;
+function autoResize(ta) {
+  ta.style.height = 'auto';
+  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+}
+function sendSuggestion(el) {
+  var t = el.textContent;
+  document.getElementById('chat-input').value = t;
+  sendChat();
+}
+async function sendChat() {
+  if (chatBusy) return;
+  var input = document.getElementById('chat-input');
+  var msg = input.value.trim();
+  if (!msg) { input.focus(); return; }
+  chatBusy = true;
+  input.value = '';
+  input.style.height = 'auto';
+  chatHistory.push({ role: 'user', content: msg });
+  addMsg('user', msg);
+  var typingEl = addTyping();
+  try {
+    var histStr = chatHistory.slice(-8).map(function(m) { return m.role.toUpperCase() + ': ' + m.content; }).join('\n');
+    var systemPrompt = 'You are NEXAI — a helpful AI assistant for the NEXAI Solana meme/utility token. You are knowledgeable about crypto, Solana, DeFi, PumpFun, trading, and coding. Be helpful, concise, and friendly. The NEXAI token CA is Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump on Solana. Buy link: https://pump.fun/coin/Ed2WuHv9Atg1Kot9butiZpw2VutLUNCH2zoNLH6kpump Twitter: @nexai2026';
+    var reply = await callAI(systemPrompt, histStr + '\nUSER: ' + msg + '\nNEXAI:');
+    reply = reply.trim();
+    chatHistory.push({ role: 'assistant', content: reply });
+    typingEl.remove();
+    addMsg('ai', reply);
+  } catch(e) {
+    typingEl.remove();
+    addMsg('ai', '⚠️ Could not reach the AI server. This can happen due to:\n• Network / mobile data issues\n• The free AI service being temporarily busy\n\nPlease wait a few seconds and try again. 🔄');
+  }
+  chatBusy = false;
+}
+function addMsg(role, text) {
+  var msgs = document.getElementById('chat-msgs');
+  var div = document.createElement('div');
+  div.className = 'msg ' + role;
+  var ava = '<div class="msg-avatar ' + (role === 'ai' ? 'ai">🤖' : 'user">👤') + '</div>';
+  var bubble = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>').replace(/`([^`]+)`/g, '<code style="background:rgba(20,241,149,.1);padding:1px 5px;border-radius:3px;font-family:JetBrains Mono,monospace;font-size:12px">$1</code>');
+  div.innerHTML = ava + '<div class="msg-bubble ' + role + '">' + bubble + '</div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+function addTyping() {
+  var msgs = document.getElementById('chat-msgs');
+  var div = document.createElement('div');
+  div.className = 'msg';
+  div.innerHTML = '<div class="msg-avatar ai">🤖</div><div class="msg-bubble ai"><div class="msg-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>';
+  msgs.appendChild(div);
+  msgs.scrollTop = msgs.scrollHeight;
+  return div;
+}
+
+// ─── IMAGE STUDIO ───
+var lastImgUrl = '';
+function setImgPrompt(t) { document.getElementById('img-prompt').value = t; }
+async function generateImage() {
+  var prompt = document.getElementById('img-prompt').value.trim();
+  if (!prompt) { document.getElementById('img-prompt').focus(); return; }
+  var style = document.getElementById('img-style').value;
+  var size = document.getElementById('img-size').value.split('x');
+  var w = parseInt(size[0]), h = parseInt(size[1]);
+  var fullPrompt = prompt + style + ', high quality, detailed';
+  var btn = document.getElementById('img-gen-btn');
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+  document.getElementById('img-placeholder').style.display = 'none';
+  document.getElementById('img-result').style.display = 'none';
+  document.getElementById('img-actions').style.display = 'none';
+  document.getElementById('img-loading').style.display = 'flex';
+  try {
+    var seed = Math.floor(Math.random() * 999999);
+    var url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(fullPrompt) + '?width=' + w + '&height=' + h + '&seed=' + seed + '&nologo=true&model=flux';
+    lastImgUrl = url;
+    var img = document.getElementById('img-result');
+    img.onload = function() {
+      document.getElementById('img-loading').style.display = 'none';
+      img.style.display = 'block';
+      document.getElementById('img-actions').style.display = 'flex';
+      btn.disabled = false; btn.textContent = '🎨 Generate Image';
+    };
+    img.onerror = function() {
+      document.getElementById('img-loading').style.display = 'none';
+      document.getElementById('img-placeholder').style.display = 'flex';
+      btn.disabled = false; btn.textContent = '🎨 Generate Image';
+    };
+    img.src = url;
+  } catch(e) {
+    document.getElementById('img-loading').style.display = 'none';
+    document.getElementById('img-placeholder').style.display = 'flex';
+    btn.disabled = false; btn.textContent = '🎨 Generate Image';
+  }
+}
+function regenerateImage() {
+  var style = document.getElementById('img-style').value;
+  var size = document.getElementById('img-size').value.split('x');
+  var w = parseInt(size[0]), h = parseInt(size[1]);
+  var prompt = document.getElementById('img-prompt').value.trim();
+  if (!prompt) return;
+  var seed = Math.floor(Math.random() * 999999);
+  var url = 'https://image.pollinations.ai/prompt/' + encodeURIComponent(prompt + style) + '?width=' + w + '&height=' + h + '&seed=' + seed + '&nologo=true&model=flux';
+  lastImgUrl = url;
+  document.getElementById('img-result').src = url;
+}
+function downloadImage() {
+  if (!lastImgUrl) return;
+  var a = document.createElement('a');
+  a.href = lastImgUrl;
+  a.download = 'nexai-image.jpg';
+  a.target = '_blank';
+  a.click();
+}
+
+// ─── CODE STUDIO ───
+var lastCode = '', lastCodeLang = '';
+function setCodeTpl(t) { document.getElementById('code-prompt').value = t; }
+async function generateCode() {
+  var prompt = document.getElementById('code-prompt').value.trim();
+  if (!prompt) { document.getElementById('code-prompt').focus(); return; }
+  var lang = document.getElementById('code-lang').value;
+  var btn = document.getElementById('code-gen-btn');
+  btn.disabled = true; btn.textContent = '⏳ Generating...';
+  document.getElementById('code-output').innerHTML = '<div class="code-placeholder"><div class="img-spinner"></div><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--g);margin-top:12px">GENERATING ' + lang.toUpperCase() + '...</div></div>';
+  try {
+    var systemPrompt = 'You are an expert ' + lang + ' developer. Generate clean, well-commented, production-ready code. Start with a brief explanation (1-3 lines), then provide the code. Use markdown code blocks.';
+    var result = await callAI(systemPrompt, 'Write ' + lang + ' code for: ' + prompt);
+    var parts = result.split(/```[a-zA-Z]*/);
+    var expl = parts[0].trim();
+    lastCode = '';
+    for (var i = 1; i < parts.length; i++) {
+      var code = parts[i].replace(/```\s*$/,'').trim();
+      if (code) { lastCode = code; break; }
+    }
+    if (!lastCode) lastCode = result.replace(/```[a-zA-Z]*/g,'').trim();
+    lastCodeLang = lang;
+    document.getElementById('code-lines').textContent = lastCode.split('\n').length + ' lines';
+    var esc = function(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    var hl = esc(lastCode)
+      .replace(/\b(function|const|let|var|return|if|else|for|while|class|import|export|from|async|await|try|catch|finally|def|print|self|True|False|None|true|false|null|undefined|void|new|this|interface|type|enum|public|private|static|extends|implements|require|struct|fn|mut|pub|use|pragma|contract|address|mapping|uint|bool|string|memory|storage|event|modifier|package|func|go)\b/g, '<span class="kw">$1</span>')
+      .replace(/(\/\/[^\n]*|\/\*[\s\S]*?\*\/|#[^\n]*)/g, '<span class="com">$1</span>')
+      .replace(/("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)/g, '<span class="str2">$1</span>')
+      .replace(/\b(\d+\.?\d*)\b/g, '<span class="num">$1</span>');
+    document.getElementById('code-output').innerHTML =
+      (expl ? '<div style="color:var(--tx2);font-size:13px;line-height:1.7;margin-bottom:16px;padding:12px;background:rgba(20,241,149,.04);border-radius:8px;border:1px solid rgba(20,241,149,.1)">' + expl.replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--tx)">$1</strong>').replace(/\n/g,'<br>') + '</div>' : '') +
+      '<pre>' + hl + '</pre>';
+  } catch(e) {
+    document.getElementById('code-output').innerHTML = '<div style="color:#ef4444;font-family:JetBrains Mono,monospace;font-size:12px;padding:16px">⚠️ Error generating code. Please try again.</div>';
+  }
+  btn.disabled = false; btn.textContent = '💻 Generate Code';
+}
+function copyCode() {
+  if (!lastCode) { alert('Generate code first.'); return; }
+  navigator.clipboard.writeText(lastCode).then(function() {
+    var b = document.querySelector('.code-action-btn.gr');
+    if (b) { var o = b.textContent; b.textContent = '✓ Copied!'; setTimeout(function() { b.textContent = o; }, 1500); }
+  });
+}
+async function explainCode() {
+  if (!lastCode) { alert('Generate code first.'); return; }
+  var btn = document.querySelector('.code-action-btn:nth-child(2)');
+  if (btn) { btn.textContent = '⏳...'; btn.disabled = true; }
+  try {
+    var expl = await callAI('Explain this code clearly, section by section. Use **bold** for key concepts. Be concise.', lastCode);
+    var out = document.getElementById('code-output');
+    out.innerHTML = '<div style="color:var(--tx);font-size:13px;line-height:1.8;padding:16px;background:rgba(20,241,149,.04);border-radius:8px;border:1px solid rgba(20,241,149,.12);margin-bottom:16px"><div style="font-family:JetBrains Mono,monospace;font-size:9px;color:var(--g);letter-spacing:2px;margin-bottom:8px">EXPLANATION</div>' + expl.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + '</div>' + out.innerHTML;
+  } catch(e) {}
+  if (btn) { btn.textContent = '📖 Explain'; btn.disabled = false; }
+}
+function downloadCode() {
+  if (!lastCode) { alert('Generate code first.'); return; }
+  var exts = { JavaScript:'js', TypeScript:'ts', Python:'py', Rust:'rs', Solidity:'sol', Go:'go', Java:'java', 'C++':'cpp', SQL:'sql', 'Bash':'sh' };
+  var b = new Blob([lastCode], { type: 'text/plain' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'nexai.' + (exts[lastCodeLang] || 'txt');
+  a.click();
+}
+
+// ─── TRANSLATOR ───
+var trBusy = false, lastTrans = '';
+var LANG_CODES = {
+  'Auto Detect':'auto','English':'en','Spanish':'es','Portuguese (Brazilian)':'pt-BR','French':'fr','German':'de','Italian':'it','Dutch':'nl','Russian':'ru','Polish':'pl','Ukrainian':'uk','Greek':'el','Swedish':'sv','Norwegian':'no','Danish':'da','Finnish':'fi','Czech':'cs','Hungarian':'hu','Romanian':'ro','Bulgarian':'bg','Croatian':'hr','Serbian':'sr','Georgian':'ka','Armenian':'hy','Welsh':'cy','Irish':'ga','Catalan':'ca','Icelandic':'is','Slovak':'sk','Slovenian':'sl','Hindi':'hi','Bengali':'bn','Urdu':'ur','Tamil':'ta','Telugu':'te','Kannada':'kn','Swahili':'sw','Amharic':'am','Hausa':'ha','Yoruba':'yo','Igbo':'ig','Zulu':'zu','Afrikaans':'af','Somali':'so','Kinyarwanda':'rw','Chinese Simplified':'zh-CN','Chinese Traditional':'zh-TW','Japanese':'ja','Korean':'ko','Thai':'th','Vietnamese':'vi','Indonesian':'id','Malay':'ms','Filipino':'tl','Burmese':'my','Mongolian':'mn','Arabic (Modern Standard)':'ar','Persian':'fa','Turkish':'tr','Hebrew':'he','Pashto':'ps','Hawaiian':'haw','Maori':'mi','Samoan':'sm','Kazakh':'kk','Uzbek':'uz','Azerbaijani':'az','Haitian Creole':'ht'
+};
+function trEl(id) { return document.getElementById(id); }
+function getLc(n) { return LANG_CODES[n] || 'en'; }
+function updateCharCount() {
+  var i = trEl('tr-input'), c = trEl('char-count');
+  if (!i || !c) return;
+  if (i.value.length > 3000) i.value = i.value.substring(0, 3000);
+  c.textContent = Math.min(i.value.length, 3000) + ' / 3000';
+}
+async function pasteText() {
+  try { var t = await navigator.clipboard.readText(); trEl('tr-input').value = t; updateCharCount(); }
+  catch(e) { alert('Please paste manually with Ctrl+V'); }
+}
+function swapLangs() {
+  var ss = trEl('src-lang'), ts = trEl('tgt-lang');
+  if (!ss || !ts) return;
+  var sv = ss.value, tv = ts.value;
+  if (sv === 'Auto Detect') return;
+  var ot = trEl('tr-output');
+  if (ot && ot.textContent && ot.style.display !== 'none') {
+    var inp = trEl('tr-input');
+    if (inp) { inp.value = ot.textContent; updateCharCount(); }
+  }
+  [ss, ts].forEach(function(sel, idx) {
+    var val = idx === 0 ? tv : sv;
+    for (var i = 0; i < sel.options.length; i++) { if (sel.options[i].value === val) { sel.selectedIndex = i; break; } }
+  });
+}
+function quickLang(lang) {
+  var ts = trEl('tgt-lang');
+  if (!ts) return;
+  for (var i = 0; i < ts.options.length; i++) { if (ts.options[i].value === lang) { ts.selectedIndex = i; break; } }
+  var inp = trEl('tr-input');
+  if (inp && inp.value.trim()) doTranslate();
+}
+async function doTranslate() {
+  var inp = trEl('tr-input');
+  if (!inp) return;
+  var text = inp.value.trim();
+  if (!text) { inp.focus(); return; }
+  if (trBusy) return;
+  var srcSel = trEl('src-lang'), tgtSel = trEl('tgt-lang');
+  var srcLang = srcSel ? srcSel.value : 'Auto Detect';
+  var tgtLang = tgtSel ? tgtSel.value : 'Spanish';
+  if (srcLang !== 'Auto Detect' && srcLang === tgtLang) { alert('Source and target must be different!'); return; }
+  trBusy = true;
+  var btn = trEl('tr-btn');
+  if (btn) { btn.disabled = true; btn.textContent = '⏳ Translating...'; }
+  var out = trEl('tr-output'), ph = trEl('tr-placeholder'), acts = trEl('tr-actions'), det = trEl('detect-badge'), load = trEl('tr-loading'), li = trEl('tr-lang-info');
+  if (out) out.style.display = 'none';
+  if (ph) ph.style.display = 'none';
+  if (acts) acts.style.display = 'none';
+  if (det) det.style.display = 'none';
+  if (load) load.style.display = 'flex';
+  if (li) li.textContent = 'Translating to ' + tgtLang + '...';
+  var isAuto = srcLang === 'Auto Detect';
+  var srcCode = isAuto ? 'autodetect' : getLc(srcLang), tgtCode = getLc(tgtLang);
+  try {
+    var result = await translateText(text, srcCode, tgtCode, srcLang, tgtLang);
+    lastTrans = result.text;
+    if (result.detected && det) { var dls = trEl('detected-lang'); if (dls) dls.textContent = result.detected; det.style.display = 'block'; }
+    if (load) load.style.display = 'none';
+    if (out) { out.textContent = lastTrans; out.style.display = 'block'; }
+    if (acts) acts.style.display = 'flex';
+  } catch(e) {
+    if (load) load.style.display = 'none';
+    if (ph) ph.style.display = 'flex';
+    if (out) { out.innerHTML = '<span style="color:#ef4444">⚠️ Translation failed. Please try again.</span>'; out.style.display = 'block'; }
+  }
+  trBusy = false;
+  if (btn) { btn.disabled = false; btn.textContent = '🌐 Translate'; }
+}
+async function translateText(text, srcCode, tgtCode, srcLangName, tgtLangName) {
+  var isAuto = srcCode === 'autodetect';
+  var promptMsg = isAuto
+    ? 'Translate this text to ' + tgtLangName + '. Output ONLY the translated text, no explanation, no quotes:\n' + text
+    : 'Translate from ' + srcLangName + ' to ' + tgtLangName + '. Output ONLY the translated text, no explanation, no quotes:\n' + text;
+
+  // 1: Anthropic API (Claude.ai sandbox)
+  try {
+    var ra = await Promise.race([
+      fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+        body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1000, messages: [{ role: 'user', content: promptMsg }] })
+      }),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},25000)})
+    ]);
+    if (ra.ok) {
+      var da = await ra.json();
+      var ta = da.content && da.content[0] && da.content[0].text;
+      if (ta && ta.trim() !== text) return { text: ta.trim(), detected: isAuto ? 'Auto-detected' : null };
+    }
+  } catch(ea) {}
+
+  // 2: Pollinations POST
+  try {
+    var r1 = await Promise.race([
+      fetch('https://text.pollinations.ai/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [{ role: 'user', content: promptMsg }], model: 'openai', private: true, seed: Math.floor(Math.random()*99999) })
+      }),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},22000)})
+    ]);
+    if (r1.ok) { var t1 = (await r1.text()).trim(); if (t1 && t1 !== text) return { text: t1, detected: isAuto ? 'Auto-detected' : null }; }
+  } catch(e1) {}
+
+  // 3: MyMemory fallback
+  try {
+    var srcA = isAuto ? 'en' : srcCode;
+    var url3 = 'https://api.mymemory.translated.net/get?q=' + encodeURIComponent(text) + '&langpair=' + srcA + '|' + tgtCode;
+    var r3 = await Promise.race([fetch(url3), new Promise(function(_,rej){setTimeout(function(){rej(new Error('t'));},12000)})]);
+    if (r3.ok) {
+      var d3 = await r3.json();
+      if (d3.responseStatus === 200 && d3.responseData && d3.responseData.translatedText) {
+        var t3 = d3.responseData.translatedText;
+        if (t3 && t3 !== text && !t3.includes('MYMEMORY WARNING')) return { text: t3, detected: isAuto ? 'Auto-detected' : null };
+      }
+    }
+  } catch(e3) {}
+  throw new Error('Translation failed');
+}
+function copyTranslation() {
+  if (!lastTrans) return;
+  navigator.clipboard.writeText(lastTrans).then(function() {
+    var btns = trEl('tr-actions');
+    if (!btns) return;
+    var b = btns.querySelector('button');
+    if (b) { var o = b.textContent; b.textContent = '✓ Copied!'; setTimeout(function() { b.textContent = o; }, 1500); }
+  });
+}
+function reverseTranslate() { swapLangs(); setTimeout(doTranslate, 150); }
+
+
+// ─── ✍️ AI WRITER ───
+var lastWrittenContent = '';
+function setWriterTpl(type, prompt) {
+  var ts = document.getElementById('wr-type');
+  for (var i=0;i<ts.options.length;i++){if(ts.options[i].value===type){ts.selectedIndex=i;break;}}
+  document.getElementById('wr-prompt').value = prompt;
+}
+function updateWriterPlaceholder(){
+  var t = document.getElementById('wr-type').value;
+  var ph = {tweet:'e.g. $NEXAI new AI utility token fair launch on Solana',thread:'e.g. Why $NEXAI is the next 100x AI utility token on Solana',blog:'e.g. The future of AI utility tokens on Solana',whitepaper:'e.g. NEXAI — AI utility token, Solana, 1B supply, 0% tax',marketing:'e.g. NEXAI platform: free AI tools powered by Solana',announcement:'e.g. NEXAI is now live on PumpFun with bonding curve',bio:'e.g. Solana trader, NEXAI holder, DeFi enthusiast',reddit:'e.g. My thoughts on NEXAI — a new AI utility token on Solana',email:'e.g. Weekly update for NEXAI token holders',roadmap:'e.g. NEXAI Q1-Q4 2025 roadmap from PumpFun to Tier-1 exchanges'};
+  document.getElementById('wr-prompt').placeholder = ph[t] || 'Describe what to write...';
+}
+async function generateContent() {
+  var topic = document.getElementById('wr-prompt').value.trim();
+  if (!topic) { document.getElementById('wr-prompt').focus(); return; }
+  var type = document.getElementById('wr-type').value;
+  var tone = document.getElementById('wr-tone').value;
+  var typeLabels = {tweet:'a single Tweet (max 280 chars)',thread:'a Twitter Thread with 5-8 numbered tweets',blog:'a full Blog Post with title, intro, sections, and conclusion',whitepaper:'a Token Whitepaper with sections: Overview, Problem, Solution, Tokenomics, Roadmap, Team',marketing:'Marketing Copy with headline, hook, body, and call-to-action',announcement:'a Project Announcement post',bio:'a Crypto Bio / About section',reddit:'a Reddit post with title and body',email:'an Email Newsletter with subject line and body',roadmap:'a Roadmap description with phases'};
+  var toneLabels = {hype:'hype, bullish, exciting, use emojis and crypto slang like LFG, WAGMI, HODL',professional:'professional, formal, trustworthy',casual:'casual, friendly, conversational',educational:'educational, informative, helpful',urgent:'urgent, FOMO-inducing, time-sensitive',funny:'funny, meme-style, use crypto humor'};
+  var btn = document.getElementById('wr-btn');
+  btn.disabled = true; btn.textContent = '⏳ Writing...';
+  document.getElementById('wr-output').innerHTML = '<div class="code-placeholder"><div class="img-spinner"></div><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--g);margin-top:12px">WRITING...</div></div>';
+  try {
+    var systemPrompt = 'You are an expert crypto content writer specializing in Solana and DeFi. Write ' + (typeLabels[type]||type) + ' in a ' + (toneLabels[tone]||tone) + ' tone. Be specific, engaging, and authentic. Include relevant crypto hashtags where appropriate for social content.';
+    var result = await callAI(systemPrompt, 'Write content about: ' + topic);
+    lastWrittenContent = result;
+    var wc = result.split(/\s+/).length;
+    document.getElementById('wr-word-count').textContent = wc + ' words';
+    document.getElementById('wr-output').innerHTML = '<div style="font-size:14px;line-height:1.85;color:var(--tx);white-space:pre-wrap;word-break:break-word">' + result.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--tx)">$1</strong>').replace(/\n/g,'<br>') + '</div>';
+  } catch(e) {
+    document.getElementById('wr-output').innerHTML = '<div style="color:#ef4444;font-family:JetBrains Mono,monospace;font-size:12px;padding:16px">⚠️ Error generating content. Please try again.</div>';
+  }
+  btn.disabled = false; btn.textContent = '✍️ Generate Content';
+}
+async function regenerateContent() {
+  if (!document.getElementById('wr-prompt').value.trim()) return;
+  await generateContent();
+}
+function copyWriter() {
+  if (!lastWrittenContent) { alert('Generate content first.'); return; }
+  navigator.clipboard.writeText(lastWrittenContent).then(function(){
+    var b = document.querySelector('#panel-wr .code-action-btn.gr');
+    if(b){var o=b.textContent;b.textContent='✓ Copied!';setTimeout(function(){b.textContent=o;},1500);}
+  });
+}
+
+// ─── 🔍 TOKEN ANALYZER ───
+var lastTkResult = '';
+function setTkTpl(token, type) {
+  document.getElementById('tk-token').value = token;
+  var ts = document.getElementById('tk-type');
+  for (var i=0;i<ts.options.length;i++){if(ts.options[i].value===type){ts.selectedIndex=i;break;}}
+}
+async function analyzeToken() {
+  var token = document.getElementById('tk-token').value.trim();
+  if (!token) { document.getElementById('tk-token').focus(); return; }
+  var type = document.getElementById('tk-type').value;
+  var extra = document.getElementById('tk-extra').value.trim();
+  var typeInstructions = {
+    full:'Provide a comprehensive deep analysis including: 1) Overview, 2) Tokenomics, 3) Utility & Use Case, 4) Risk Assessment (rate 1-10), 5) Community & Social, 6) Technical Analysis, 7) Moon Potential Score (1-10), 8) Verdict (Buy/Hold/Avoid). Use **bold** for scores and key points.',
+    risk:'Analyze the risk factors: red flags, rug pull indicators, team transparency, liquidity lock, contract audit status. Give a Risk Score 1-10 (10=highest risk). Use **bold** for Risk Score.',
+    tokenomics:'Analyze the tokenomics: supply, distribution, inflation, burn mechanism, vesting schedules, fairness. Give a Tokenomics Score 1-10.',
+    community:'Analyze community strength, social media presence, holder count, Twitter engagement, Discord/Telegram activity, hype level.',
+    technical:'Technical analysis: price action patterns, support/resistance levels, volume trends, chart indicators, short/mid/long term outlook.',
+    compare:'Compare this token with similar projects in the market. What makes it unique? Where does it fall short?',
+    scam:'Analyze for rug pull and scam indicators. Check: anonymous team, locked liquidity, honeypot, copy-paste code, fake volume. Give Scam Risk Score 1-10.',
+    potential:'Analyze moon potential. Give potential multiplier estimates (2x, 10x, 100x) with reasoning. Moon Score 1-10.'
+  };
+  var btn = document.getElementById('tk-btn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+  document.getElementById('tk-output').innerHTML = '<div class="code-placeholder"><div class="img-spinner"></div><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--g);margin-top:12px">ANALYZING ' + token.toUpperCase() + '...</div></div>';
+  try {
+    var systemPrompt = 'You are an expert crypto analyst specializing in Solana meme coins, DeFi tokens, and blockchain analysis. ' + (typeInstructions[type]||'Provide a detailed analysis.');
+    var userMsg = 'Analyze this token: ' + token + (extra ? '\n\nAdditional info:\n' + extra : '') + '\n\n\u26a0\ufe0f Remember to add: This is AI analysis for educational purposes only, not financial advice. Always DYOR.';
+    var result = await callAI(systemPrompt, userMsg);
+    lastTkResult = result;
+    document.getElementById('tk-output').innerHTML = '<div style="font-size:13px;line-height:1.85;color:var(--tx);white-space:pre-wrap;word-break:break-word">' + result.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--g)">$1</strong>').replace(/\n/g,'<br>') + '</div>';
+  } catch(e) {
+    document.getElementById('tk-output').innerHTML = '<div style="color:#ef4444;font-family:JetBrains Mono,monospace;font-size:12px;padding:16px">⚠️ Analysis failed. Try again.</div>';
+  }
+  btn.disabled = false; btn.textContent = '🔍 Analyze Token';
+}
+function copyTkOutput() {
+  if (!lastTkResult) return;
+  navigator.clipboard.writeText(lastTkResult).then(function(){
+    var b = document.querySelector('#panel-tk .code-action-btn.gr');
+    if(b){var o=b.textContent;b.textContent='✓ Copied!';setTimeout(function(){b.textContent=o;},1500);}
+  });
+}
+
+// ─── 🗣️ TEXT TO SPEECH ───
+var ttsUtterance = null;
+var ttsSynth = window.speechSynthesis;
+function setTtsText(t) { document.getElementById('tts-text').value = t; }
+function loadVoices() {
+  var lang = document.getElementById('tts-lang').value;
+  var sel = document.getElementById('tts-voice');
+  sel.innerHTML = '';
+  var voices = ttsSynth.getVoices().filter(function(v){ return v.lang.startsWith(lang.split('-')[0]); });
+  if (!voices.length) voices = ttsSynth.getVoices();
+  voices.forEach(function(v, i) {
+    var opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = v.name + (v.default?' (default)':'');
+    opt.dataset.voiceName = v.name;
+    sel.appendChild(opt);
+  });
+}
+if (ttsSynth) {
+  ttsSynth.onvoiceschanged = loadVoices;
+  loadVoices();
+}
+function speakText() {
+  if (!ttsSynth) { alert('Text-to-Speech not supported in this browser.'); return; }
+  var text = document.getElementById('tts-text').value.trim();
+  if (!text) { document.getElementById('tts-text').focus(); return; }
+  ttsSynth.cancel();
+  ttsUtterance = new SpeechSynthesisUtterance(text);
+  var lang = document.getElementById('tts-lang').value;
+  var voiceSel = document.getElementById('tts-voice');
+  var allVoices = ttsSynth.getVoices();
+  if (voiceSel.selectedIndex >= 0 && voiceSel.options[voiceSel.selectedIndex]) {
+    var vName = voiceSel.options[voiceSel.selectedIndex].dataset.voiceName;
+    var found = allVoices.find(function(v){return v.name===vName;});
+    if (found) ttsUtterance.voice = found;
+  }
+  ttsUtterance.lang = lang;
+  ttsUtterance.rate = parseFloat(document.getElementById('tts-rate').value);
+  ttsUtterance.pitch = parseFloat(document.getElementById('tts-pitch').value);
+  ttsUtterance.volume = parseFloat(document.getElementById('tts-vol').value);
+  ttsUtterance.onstart = function(){ document.getElementById('tts-status').textContent = '🔊 Speaking...'; document.getElementById('tts-status').style.color='var(--g)'; document.getElementById('tts-play-btn').textContent='🔊 Speaking...'; };
+  ttsUtterance.onend = function(){ document.getElementById('tts-status').textContent = '✅ Done!'; document.getElementById('tts-status').style.color='var(--g)'; document.getElementById('tts-play-btn').textContent='▶ Speak'; };
+  ttsUtterance.onerror = function(e){ document.getElementById('tts-status').textContent = '⚠️ Error: '+e.error; document.getElementById('tts-status').style.color='#ef4444'; document.getElementById('tts-play-btn').textContent='▶ Speak'; };
+  ttsSynth.speak(ttsUtterance);
+}
+function pauseSpeech() {
+  if (!ttsSynth) return;
+  if (ttsSynth.paused) { ttsSynth.resume(); document.getElementById('tts-status').textContent='🔊 Resumed'; }
+  else { ttsSynth.pause(); document.getElementById('tts-status').textContent='⏸ Paused'; }
+}
+function stopSpeech() {
+  if (!ttsSynth) return;
+  ttsSynth.cancel();
+  document.getElementById('tts-status').textContent = 'Stopped';
+  document.getElementById('tts-status').style.color = 'var(--tx3)';
+  document.getElementById('tts-play-btn').textContent = '▶ Speak';
+}
+
+// ─── 🎯 TRADING ASSISTANT ───
+var lastTaResult = '';
+function setTaTpl(token, mode) {
+  document.getElementById('ta-token').value = token;
+  var ts = document.getElementById('ta-mode');
+  for (var i=0;i<ts.options.length;i++){if(ts.options[i].value===mode){ts.selectedIndex=i;break;}}
+}
+async function analyzeTrading() {
+  var token = document.getElementById('ta-token').value.trim();
+  if (!token) { document.getElementById('ta-token').focus(); return; }
+  var mode = document.getElementById('ta-mode').value;
+  var context = document.getElementById('ta-context').value.trim();
+  var modeInstructions = {
+    swing:'Swing trading analysis: ideal entry zones, exit targets, stop loss levels, expected timeframe (days/weeks), risk/reward ratio. Use **bold** for key levels.',
+    scalp:'Scalp trading setup: precise entry, tight stop loss, quick profit targets, best timeframe (1m/5m/15m), volume considerations.',
+    entry:'Optimal entry and exit points: buy zone, target 1, target 2, target 3, stop loss, risk/reward. Format clearly with labels.',
+    sentiment:'Market sentiment analysis: current mood (Greed/Fear), social signals, whale activity, news impact, short-term outlook.',
+    support:'Support and resistance levels: key support zones, resistance levels, breakout levels, invalidation points.',
+    dca:'DCA (Dollar Cost Averaging) strategy: recommended intervals, allocation percentages, when to increase/decrease DCA, cost basis management.',
+    risk:'Risk management framework: position sizing, stop loss placement, portfolio allocation %, max drawdown tolerance, when to cut losses.',
+    portfolio:'Portfolio allocation advice: how much % to allocate, diversification, correlation with BTC/SOL, position size recommendations.',
+    compare:'Compare with similar tokens/assets in the same category. Pros and cons, relative value, which has better risk/reward.',
+    trend:'Trend analysis: macro trend (bullish/bearish/sideways), momentum indicators, moving average alignment, trend strength.'
+  };
+  var btn = document.getElementById('ta-btn');
+  btn.disabled = true; btn.textContent = '⏳ Analyzing...';
+  document.getElementById('ta-output').innerHTML = '<div class="code-placeholder"><div class="img-spinner"></div><div style="font-family:JetBrains Mono,monospace;font-size:11px;color:var(--g);margin-top:12px">ANALYZING MARKET...</div></div>';
+  try {
+    var systemPrompt = 'You are an expert crypto trading analyst with deep knowledge of technical analysis, DeFi, and Solana ecosystem. ' + (modeInstructions[mode]||'Provide trading analysis.') + ' Always end with a clear disclaimer: ⚠️ This is AI-generated analysis for educational purposes only. Not financial advice. Always DYOR and trade with caution.';
+    var userMsg = 'Analyze for trading: ' + token + (context ? '\n\nContext: ' + context : '');
+    var result = await callAI(systemPrompt, userMsg);
+    lastTaResult = result;
+    document.getElementById('ta-output').innerHTML = '<div style="font-size:13px;line-height:1.85;color:var(--tx);white-space:pre-wrap;word-break:break-word">' + result.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\*\*(.*?)\*\*/g,'<strong style="color:var(--g)">$1</strong>').replace(/\n/g,'<br>') + '</div>';
+  } catch(e) {
+    document.getElementById('ta-output').innerHTML = '<div style="color:#ef4444;font-family:JetBrains Mono,monospace;font-size:12px;padding:16px">⚠️ Analysis failed. Try again.</div>';
+  }
+  btn.disabled = false; btn.textContent = '🎯 Analyze';
+}
+function copyTaOutput() {
+  if (!lastTaResult) return;
+  navigator.clipboard.writeText(lastTaResult).then(function(){
+    var b = document.querySelector('#panel-ta .code-action-btn.gr');
+    if(b){var o=b.textContent;b.textContent='✓ Copied!';setTimeout(function(){b.textContent=o;},1500);}
+  });
+}
+// ─── NAV SCROLL EFFECT ───
+window.addEventListener('scroll', function() {
+  var nav = document.getElementById('nav');
+  if (window.scrollY > 30) { nav.style.background = 'rgba(2,4,8,.96)'; }
+  else { nav.style.background = 'rgba(2,4,8,.82)'; }
+});
+</script>
+</body>
+</html>
