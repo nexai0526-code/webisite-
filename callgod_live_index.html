@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$CALLGOD — The Oracle of Markets</title>
+<meta name="description" content="$CALLGOD - The Oracle of Markets. Daily AI crypto calls on Solana. Right or wrong, always entertaining. Powered by NexAI.">
+<meta property="og:title" content="$CALLGOD — The Oracle of Markets">
+<meta property="og:description" content="Daily AI crypto calls. Right or wrong, always entertaining. $CALLGOD on Solana.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@200;300;400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--gold:#C9A84C;--gold-light:#E8D48B;--gold-dark:#8A7233;--gold-faint:rgba(201,168,76,.06);
+--bg:#0C0B09;--bg2:#121110;--bg3:#1A1917;--bg4:#0a0908;
+--text:#FAF6EF;--text-dim:#8a8070;--text-faint:#5a4a2a;
+--green:#4CAF50;--red:#FF5252;--blue:#5C9DFF;
+--serif:'Cormorant Garamond',Georgia,serif;
+--sans:'Outfit',sans-serif;
+--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);overflow-x:hidden;cursor:default}
+::selection{background:var(--gold);color:var(--bg)}
+a{color:inherit;text-decoration:none}
+
+/* Grain overlay */
+body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9998;opacity:.3}
+
+/* Custom cursor */
+.cursor-dot{width:6px;height:6px;background:var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:10000;transition:transform .1s}
+.cursor-ring{width:36px;height:36px;border:1px solid var(--gold);border-radius:50%;position:fixed;pointer-events:none;z-index:10000;transition:all .15s ease-out;opacity:.5}
+.cursor-ring.hover{transform:scale(1.8);opacity:.2;border-color:var(--gold-light)}
+@media(max-width:768px){.cursor-dot,.cursor-ring{display:none}}
+
+/* Preloader */
+.preloader{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity 1s,visibility 1s}
+.preloader.hidden{opacity:0;visibility:hidden;pointer-events:none}
+.preloader svg{width:120px;height:120px;animation:preloaderSpin 3s linear infinite}
+@keyframes preloaderSpin{0%{opacity:.3;transform:scale(.95)}50%{opacity:1;transform:scale(1)}100%{opacity:.3;transform:scale(.95)}}
+.preloader-bar{width:200px;height:1px;background:var(--bg3);margin-top:40px;overflow:hidden;border-radius:1px}
+.preloader-fill{height:100%;background:var(--gold);animation:fillBar 1.8s ease-in-out forwards}
+@keyframes fillBar{0%{width:0}100%{width:100%}}
+.preloader-text{margin-top:16px;font-family:var(--serif);font-size:11px;color:var(--text-faint);letter-spacing:8px}
+
+/* Gold line */
+.gold-line{height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:0 auto}
+
+/* Floating particles */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0}
+.particle{position:absolute;background:var(--gold);opacity:0;border-radius:50%;animation:float linear infinite}
+@keyframes float{0%{opacity:0;transform:translateY(100vh) rotate(0deg)}10%{opacity:.2}90%{opacity:.2}100%{opacity:0;transform:translateY(-10vh) rotate(360deg)}}
+
+/* Navigation */
+nav{position:fixed;top:0;width:100%;z-index:200;padding:24px 60px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(20px);background:rgba(12,11,9,0);border-bottom:1px solid transparent;transition:all .5s}
+nav.scrolled{padding:14px 60px;background:rgba(12,11,9,.92);border-bottom:1px solid rgba(201,168,76,.1)}
+.nav-logo{display:flex;align-items:center;gap:16px;text-decoration:none}
+.nav-logo svg{width:36px;height:36px}
+.nav-logo-text{font-family:var(--serif);font-size:16px;color:var(--gold);letter-spacing:6px}
+.nav-links{display:flex;gap:36px;align-items:center}
+.nav-links a{color:var(--text-dim);font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:300;transition:color .3s;position:relative}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--gold);transition:width .3s}
+.nav-links a:hover{color:var(--gold)}
+.nav-links a:hover::after{width:100%}
+.nav-cta{border:1px solid var(--gold)!important;color:var(--gold)!important;padding:10px 28px!important;font-family:var(--serif)!important;font-size:14px!important;letter-spacing:4px!important;transition:all .3s!important}
+.nav-cta:hover{background:var(--gold)!important;color:var(--bg)!important}
+.nav-cta::after{display:none!important}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:4px;z-index:201}
+.menu-toggle span{display:block;width:24px;height:1.5px;background:var(--gold);margin:5px 0;transition:all .3s}
+.menu-toggle.active span:nth-child(1){transform:rotate(45deg) translate(4px,4px)}
+.menu-toggle.active span:nth-child(2){opacity:0}
+.menu-toggle.active span:nth-child(3){transform:rotate(-45deg) translate(4px,-4px)}
+
+/* Live ticker bar */
+.ticker-bar{position:fixed;top:0;width:100%;z-index:300;background:var(--gold);padding:6px 0;overflow:hidden}
+.ticker-bar.hidden{transform:translateY(-100%);transition:transform .4s}
+.ticker-content{display:flex;animation:tickerScroll 30s linear infinite;white-space:nowrap}
+.ticker-content span{font-family:var(--mono);font-size:11px;color:var(--bg);font-weight:400;margin-right:60px;letter-spacing:1px}
+@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+nav.has-ticker{top:28px}
+
+/* Hero */
+.hero{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:28px}
+.hero::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,var(--gold-faint) 0%,transparent 60%);pointer-events:none;animation:heroPulse 6s ease-in-out infinite}
+@keyframes heroPulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.1);opacity:.6}}
+.hero-frame{position:absolute;inset:40px;border:1px solid rgba(201,168,76,.08);pointer-events:none}
+.hero-corner{position:absolute;width:20px;height:20px;border-color:var(--gold);border-style:solid;opacity:.4}
+.hero-corner.tl{top:0;left:0;border-width:1px 0 0 1px}
+.hero-corner.tr{top:0;right:0;border-width:1px 1px 0 0}
+.hero-corner.bl{bottom:0;left:0;border-width:0 0 1px 1px}
+.hero-corner.br{bottom:0;right:0;border-width:0 1px 1px 0}
+
+.hero-est{font-family:var(--serif);font-size:11px;color:var(--gold-dark);letter-spacing:14px;opacity:0;animation:fadeUp .8s .5s forwards}
+.hero-monogram{margin:32px 0;opacity:0;animation:fadeUp 1s .7s forwards}
+.hero-monogram svg{width:160px;height:160px}
+.hero-title{font-family:var(--serif);font-size:clamp(48px,10vw,130px);font-weight:300;color:var(--gold);letter-spacing:clamp(8px,2vw,24px);line-height:1;opacity:0;animation:fadeUp 1s .9s forwards}
+.hero-subtitle{font-family:var(--serif);font-size:clamp(13px,2vw,18px);color:var(--text-dim);letter-spacing:8px;font-weight:300;font-style:italic;margin-top:16px;opacity:0;animation:fadeUp 1s 1.1s forwards}
+.hero-buttons{display:flex;gap:20px;margin-top:48px;opacity:0;animation:fadeUp 1s 1.3s forwards}
+.hero-btn{padding:14px 36px;font-family:var(--serif);font-size:14px;letter-spacing:4px;border:1px solid;transition:all .3s;cursor:pointer;background:none}
+.hero-btn.primary{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.hero-btn.primary:hover{background:transparent;color:var(--gold)}
+.hero-btn.secondary{color:var(--gold);border-color:rgba(201,168,76,.3)}
+.hero-btn.secondary:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
+
+.scroll-hint{position:absolute;bottom:40px;display:flex;flex-direction:column;align-items:center;gap:8px;opacity:0;animation:fadeUp 1s 1.8s forwards}
+.scroll-hint span{font-size:9px;letter-spacing:5px;color:var(--text-faint)}
+.scroll-line{width:1px;height:40px;background:var(--gold);animation:scrollPulse 2s infinite}
+@keyframes scrollPulse{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+
+/* Section base */
+section{padding:140px 60px;max-width:1300px;margin:0 auto}
+.section-label{font-family:var(--mono);font-size:10px;color:var(--gold-dark);letter-spacing:8px;text-transform:uppercase;margin-bottom:12px}
+.section-title{font-family:var(--serif);font-size:clamp(32px,5vw,60px);font-weight:300;color:var(--gold);letter-spacing:4px;margin-bottom:20px}
+.section-desc{font-size:15px;color:var(--text-dim);font-weight:300;line-height:1.7;max-width:600px;margin-bottom:60px}
+
+/* Stats bar */
+.stats-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:0;background:var(--bg2);border:1px solid rgba(201,168,76,.1);margin:0 60px}
+.stats-bar .stat{padding:40px;text-align:center;border-right:1px solid rgba(201,168,76,.06)}
+.stats-bar .stat:last-child{border:none}
+.stat-value{font-family:var(--serif);font-size:clamp(28px,4vw,48px);color:var(--gold);font-weight:300}
+.stat-label{font-size:10px;color:var(--text-dim);letter-spacing:4px;margin-top:8px}
+
+/* Story */
+.story{display:grid;grid-template-columns:1fr 1px 1fr;gap:60px;align-items:start}
+.story-divider{background:linear-gradient(to bottom,transparent,var(--gold),transparent);height:100%;min-height:300px}
+.story-text{font-family:var(--serif);font-size:21px;line-height:1.9;color:var(--text-dim);font-weight:300}
+.story-text em{color:var(--gold);font-style:italic}
+.story-quote{font-family:var(--serif);font-size:28px;color:var(--gold);font-style:italic;font-weight:300;border-left:2px solid var(--gold);padding-left:24px;margin-top:32px}
+
+/* Live Oracle */
+.oracle-live{background:var(--bg2);border:1px solid rgba(201,168,76,.12);padding:60px;position:relative;overflow:hidden}
+.oracle-live::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,var(--gold-faint),transparent);pointer-events:none}
+.oracle-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:40px;flex-wrap:wrap;gap:20px}
+.oracle-status{display:flex;align-items:center;gap:10px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:livePulse 2s infinite}
+@keyframes livePulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(76,175,80,.4)}50%{opacity:.8;box-shadow:0 0 0 8px rgba(76,175,80,0)}}
+.oracle-status span{font-family:var(--mono);font-size:11px;color:var(--green);letter-spacing:3px}
+.oracle-countdown{text-align:right}
+.oracle-countdown label{font-size:10px;color:var(--text-dim);letter-spacing:3px;display:block;margin-bottom:8px}
+.countdown-timer{font-family:var(--mono);font-size:28px;color:var(--gold);font-weight:300;letter-spacing:4px}
+.oracle-call{margin-bottom:32px}
+.oracle-call-date{font-family:var(--mono);font-size:11px;color:var(--text-dim);letter-spacing:3px;margin-bottom:12px}
+.oracle-call-coin{font-family:var(--serif);font-size:clamp(40px,6vw,64px);color:var(--gold);font-weight:300;letter-spacing:4px}
+.oracle-call-direction{display:inline-block;font-family:var(--mono);font-size:13px;padding:6px 20px;margin-top:12px;letter-spacing:3px;border:1px solid}
+.oracle-call-direction.bullish{color:var(--green);border-color:var(--green)}
+.oracle-call-direction.bearish{color:var(--red);border-color:var(--red)}
+.oracle-call-text{font-family:var(--serif);font-size:18px;color:var(--text-dim);font-style:italic;font-weight:300;line-height:1.8;margin-top:20px;padding-left:20px;border-left:1px solid rgba(201,168,76,.2)}
+.oracle-results{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:32px;padding-top:32px;border-top:1px solid rgba(201,168,76,.08)}
+.oracle-result{padding:0 24px;border-right:1px solid rgba(201,168,76,.06)}
+.oracle-result:first-child{padding-left:0}
+.oracle-result:last-child{border:none}
+.oracle-result label{font-size:9px;letter-spacing:3px;color:var(--text-dim);display:block;margin-bottom:6px}
+.oracle-result span{font-family:var(--serif);font-size:24px;font-weight:300}
+.oracle-result span.green{color:var(--green)}
+.oracle-result span.red{color:var(--red)}
+.oracle-result span.gold{color:var(--gold)}
+
+/* Report Card */
+.report-card{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-top:60px}
+.report-chart{background:var(--bg2);border:1px solid rgba(201,168,76,.08);padding:40px}
+.report-chart h3{font-family:var(--serif);font-size:20px;color:var(--gold);font-weight:400;margin-bottom:24px;letter-spacing:2px}
+.bar-chart{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:flex;align-items:center;gap:12px}
+.bar-label{font-family:var(--mono);font-size:10px;color:var(--text-dim);width:40px;letter-spacing:1px}
+.bar-track{flex:1;height:24px;background:var(--bg);border-radius:0;overflow:hidden;position:relative}
+.bar-fill{height:100%;transition:width 1.5s ease-out}
+.bar-fill.win{background:linear-gradient(90deg,var(--green),rgba(76,175,80,.4))}
+.bar-fill.loss{background:linear-gradient(90deg,var(--red),rgba(255,82,82,.4))}
+.bar-value{font-family:var(--mono);font-size:11px;color:var(--text-dim);width:36px;text-align:right}
+.report-history{background:var(--bg2);border:1px solid rgba(201,168,76,.08);padding:40px}
+.report-history h3{font-family:var(--serif);font-size:20px;color:var(--gold);font-weight:400;margin-bottom:24px;letter-spacing:2px}
+.history-list{display:flex;flex-direction:column;gap:0}
+.history-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(201,168,76,.05)}
+.history-item:last-child{border:none}
+.history-coin{font-family:var(--mono);font-size:13px;color:var(--text)}
+.history-date{font-size:11px;color:var(--text-dim)}
+.history-result{font-family:var(--mono);font-size:13px;padding:4px 12px;border:1px solid}
+.history-result.win{color:var(--green);border-color:rgba(76,175,80,.3)}
+.history-result.loss{color:var(--red);border-color:rgba(255,82,82,.3)}
+
+/* How it works */
+.works-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px}
+.work-card{background:var(--bg2);padding:52px 40px;position:relative;transition:all .5s;overflow:hidden}
+.work-card:hover{background:var(--bg3)}
+.work-card::before{content:attr(data-num);font-family:var(--serif);font-size:80px;color:rgba(201,168,76,.05);position:absolute;top:16px;right:20px;font-weight:300}
+.work-card::after{content:'';position:absolute;bottom:0;left:0;width:0;height:2px;background:var(--gold);transition:width .5s}
+.work-card:hover::after{width:100%}
+.work-icon{font-family:var(--serif);font-size:32px;color:var(--gold);margin-bottom:20px}
+.work-card h3{font-family:var(--serif);font-size:24px;font-weight:400;color:var(--gold);margin-bottom:16px;letter-spacing:2px}
+.work-card p{font-size:14px;line-height:1.7;color:var(--text-dim);font-weight:300}
+
+/* Tokenomics */
+.token-grid{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.token-visual{position:relative;width:320px;height:320px;margin:0 auto}
+.token-ring-outer{width:100%;height:100%;border-radius:50%;background:conic-gradient(var(--gold) 0deg 324deg,var(--green) 324deg 342deg,var(--red) 342deg 360deg);padding:5px;animation:tokenSpin 30s linear infinite}
+@keyframes tokenSpin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
+.token-ring-inner{width:100%;height:100%;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column}
+.token-ring-inner span{font-family:var(--serif);font-size:48px;color:var(--gold);font-weight:300}
+.token-ring-inner small{font-size:10px;color:var(--text-dim);letter-spacing:4px;margin-top:4px}
+.token-list{display:flex;flex-direction:column;gap:28px}
+.token-item{display:flex;justify-content:space-between;align-items:center;padding-bottom:20px;border-bottom:1px solid rgba(201,168,76,.08)}
+.token-item-name{display:flex;align-items:center;gap:14px}
+.token-dot{width:10px;height:10px}
+.token-dot.lp{background:var(--gold)}
+.token-dot.mkt{background:var(--green)}
+.token-dot.dev{background:var(--red)}
+.token-item-label{font-size:14px;color:var(--text-dim);font-weight:300}
+.token-item-value{font-family:var(--serif);font-size:22px;color:var(--gold)}
+.token-features{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:32px}
+.token-feature{background:var(--bg2);padding:20px;border:1px solid rgba(201,168,76,.06)}
+.token-feature span{font-family:var(--mono);font-size:10px;color:var(--gold);letter-spacing:2px}
+.token-feature p{font-size:12px;color:var(--text-dim);margin-top:6px;font-weight:300}
+
+/* Contract box */
+.contract-box{background:var(--bg2);border:1px solid rgba(201,168,76,.15);padding:36px 48px;display:flex;align-items:center;justify-content:space-between;margin-top:48px;gap:20px;position:relative;overflow:hidden}
+.contract-box::before{content:'';position:absolute;left:0;top:0;width:4px;height:100%;background:var(--gold)}
+.contract-box label{font-family:var(--mono);font-size:9px;color:var(--gold-dark);letter-spacing:3px;display:block;margin-bottom:8px}
+.contract-box span{font-family:var(--mono);font-size:14px;color:var(--text-dim);letter-spacing:1px;word-break:break-all}
+.copy-btn{font-family:var(--serif);font-size:13px;color:var(--gold);background:none;border:1px solid var(--gold);padding:12px 32px;cursor:pointer;letter-spacing:3px;transition:all .3s;white-space:nowrap}
+.copy-btn:hover{background:var(--gold);color:var(--bg)}
+
+/* Roadmap */
+.roadmap-timeline{position:relative;margin-top:60px;padding-left:80px}
+.roadmap-timeline::before{content:'';position:absolute;left:30px;top:0;bottom:0;width:1px;background:linear-gradient(to bottom,var(--gold),rgba(201,168,76,.05))}
+.roadmap-phase{position:relative;margin-bottom:60px;padding:48px;background:var(--bg2);border:1px solid rgba(201,168,76,.06);transition:all .4s}
+.roadmap-phase:hover{border-color:rgba(201,168,76,.25);transform:translateX(4px)}
+.roadmap-phase::before{content:'';position:absolute;left:-58px;top:56px;width:12px;height:12px;border:2px solid var(--gold);background:var(--bg);transform:rotate(45deg);transition:background .3s}
+.roadmap-phase:hover::before{background:var(--gold)}
+.phase-label{font-family:var(--mono);font-size:10px;color:var(--gold-dark);letter-spacing:6px;margin-bottom:12px}
+.phase-title{font-family:var(--serif);font-size:30px;color:var(--gold);font-weight:300;letter-spacing:2px;margin-bottom:20px}
+.phase-items{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.phase-items li{font-size:13px;color:var(--text-dim);font-weight:300;padding-left:20px;position:relative;line-height:1.6}
+.phase-items li::before{content:'\25C7';position:absolute;left:0;color:var(--gold-dark);font-size:9px;top:3px}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:0;margin-top:60px}
+.faq-item{border-bottom:1px solid rgba(201,168,76,.08)}
+.faq-question{width:100%;background:none;border:none;color:var(--text);font-family:var(--serif);font-size:20px;font-weight:400;padding:28px 0;cursor:pointer;display:flex;justify-content:space-between;align-items:center;text-align:left;letter-spacing:1px;transition:color .3s}
+.faq-question:hover{color:var(--gold)}
+.faq-icon{font-family:var(--serif);font-size:24px;color:var(--gold);transition:transform .3s;flex-shrink:0;margin-left:20px}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-answer{max-height:0;overflow:hidden;transition:max-height .4s ease-out}
+.faq-answer p{font-size:14px;color:var(--text-dim);font-weight:300;line-height:1.8;padding:0 0 28px 0}
+
+/* CTA Section */
+.cta-section{text-align:center;padding:180px 60px;position:relative}
+.cta-section::before{content:'';position:absolute;top:50%;left:50%;width:900px;height:900px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,var(--gold-faint),transparent);pointer-events:none}
+.cta-title{font-family:var(--serif);font-size:clamp(36px,6vw,72px);font-weight:300;color:var(--gold);letter-spacing:4px;margin-bottom:20px}
+.cta-sub{font-size:16px;color:var(--text-dim);font-weight:300;margin-bottom:48px;letter-spacing:2px}
+.cta-buttons{display:flex;gap:20px;justify-content:center;flex-wrap:wrap}
+.cta-btn{display:inline-flex;align-items:center;gap:10px;padding:16px 44px;font-family:var(--serif);font-size:16px;letter-spacing:4px;transition:all .3s;border:1px solid;cursor:pointer;background:none}
+.cta-btn.primary{background:var(--gold);color:var(--bg);border-color:var(--gold)}
+.cta-btn.primary:hover{background:transparent;color:var(--gold)}
+.cta-btn.secondary{color:var(--gold);border-color:rgba(201,168,76,.3)}
+.cta-btn.secondary:hover{border-color:var(--gold);background:rgba(201,168,76,.08)}
+
+/* Footer */
+footer{border-top:1px solid rgba(201,168,76,.08);padding:80px 60px 40px}
+.footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:60px;margin-bottom:60px}
+.footer-brand .footer-logo{font-family:var(--serif);font-size:24px;color:var(--gold);letter-spacing:6px;margin-bottom:16px}
+.footer-brand p{font-size:13px;color:var(--text-dim);font-weight:300;line-height:1.7;max-width:300px}
+.footer-col h4{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:4px;margin-bottom:20px;font-weight:400}
+.footer-col a{display:block;font-size:13px;color:var(--text-dim);font-weight:300;margin-bottom:12px;transition:color .3s}
+.footer-col a:hover{color:var(--gold)}
+.footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:32px;border-top:1px solid rgba(201,168,76,.06);flex-wrap:wrap;gap:16px}
+.footer-disclaimer{font-size:10px;color:rgba(138,128,112,.4);max-width:500px;line-height:1.7}
+.powered-by{display:flex;align-items:center;gap:8px}
+.powered-by span{font-size:10px;color:var(--text-dim);letter-spacing:3px}
+.powered-by a{font-family:var(--serif);font-size:14px;color:var(--gold);letter-spacing:4px;transition:all .3s}
+.powered-by a:hover{color:var(--gold-light)}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .8s,transform .8s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+.reveal-delay-1{transition-delay:.1s}
+.reveal-delay-2{transition-delay:.2s}
+.reveal-delay-3{transition-delay:.3s}
+
+/* Responsive */
+@media(max-width:768px){
+  nav{padding:16px 20px}
+  nav.scrolled{padding:12px 20px}
+  nav.has-ticker{top:28px}
+  .nav-links{position:fixed;top:0;right:-100%;width:75%;height:100vh;background:var(--bg);flex-direction:column;justify-content:center;align-items:center;gap:36px;transition:right .4s;border-left:1px solid rgba(201,168,76,.1);z-index:200}
+  .nav-links.open{right:0}
+  .menu-toggle{display:block}
+  section{padding:80px 24px}
+  .stats-bar{grid-template-columns:repeat(2,1fr);margin:0 24px}
+  .story{grid-template-columns:1fr;gap:40px}
+  .story-divider{display:none}
+  .works-grid{grid-template-columns:1fr}
+  .oracle-results{grid-template-columns:repeat(2,1fr);gap:20px}
+  .oracle-result{padding:0;border:none}
+  .report-card{grid-template-columns:1fr}
+  .token-grid{grid-template-columns:1fr;gap:40px}
+  .token-features{grid-template-columns:1fr}
+  .phase-items{grid-template-columns:1fr}
+  .roadmap-timeline{padding-left:50px}
+  .roadmap-phase::before{left:-28px}
+  .contract-box{flex-direction:column;text-align:center;padding:28px 24px}
+  .cta-section{padding:100px 24px}
+  .cta-buttons{flex-direction:column;align-items:center}
+  .footer-grid{grid-template-columns:1fr;gap:40px}
+  .footer-bottom{flex-direction:column;text-align:center}
+  .hero-buttons{flex-direction:column;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Preloader -->
+<div class="preloader" id="preloader">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="100" cy="100" r="80" fill="none" stroke="#C9A84C" stroke-width="1"/>
+    <circle cx="100" cy="100" r="72" fill="none" stroke="#C9A84C" stroke-width="0.3" opacity="0.4"/>
+    <text x="88" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="70" fill="#C9A84C">C</text>
+    <text x="118" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="70" fill="#C9A84C" opacity="0.8">G</text>
+  </svg>
+  <div class="preloader-bar"><div class="preloader-fill"></div></div>
+  <div class="preloader-text">ENTERING THE TEMPLE</div>
+</div>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Ticker Bar -->
+<div class="ticker-bar" id="tickerBar">
+  <div class="ticker-content" id="tickerContent"></div>
+</div>
+
+<!-- Navigation -->
+<nav id="navbar" class="has-ticker">
+  <a href="#" class="nav-logo">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="90" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+      <text x="88" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="70" fill="#C9A84C">C</text>
+      <text x="118" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="70" fill="#C9A84C" opacity="0.8">G</text>
+    </svg>
+    <span class="nav-logo-text">CALLGOD</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#story" onclick="closeMenu()">Story</a>
+    <a href="#oracle" onclick="closeMenu()">Oracle</a>
+    <a href="#tokenomics" onclick="closeMenu()">Tokenomics</a>
+    <a href="#roadmap" onclick="closeMenu()">Roadmap</a>
+    <a href="#faq" onclick="closeMenu()">FAQ</a>
+    <a href="#community" class="nav-cta" onclick="closeMenu()">Enter Temple</a>
+  </div>
+  <button class="menu-toggle" id="menuToggle" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="hero-frame">
+    <div class="hero-corner tl"></div>
+    <div class="hero-corner tr"></div>
+    <div class="hero-corner bl"></div>
+    <div class="hero-corner br"></div>
+  </div>
+  <div class="hero-est">THE HOUSE OF</div>
+  <div class="hero-monogram">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="100" cy="100" r="90" fill="none" stroke="#C9A84C" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="83" fill="none" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>
+      <circle cx="100" cy="100" r="97" fill="none" stroke="#C9A84C" stroke-width="0.4" opacity="0.4"/>
+      <circle cx="100" cy="100" r="65" fill="none" stroke="#C9A84C" stroke-width="0.3" stroke-dasharray="3,6" opacity="0.3"/>
+      <text x="88" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="75" fill="#C9A84C">C</text>
+      <text x="118" y="115" text-anchor="middle" font-family="Georgia,serif" font-size="75" fill="#C9A84C" opacity="0.8">G</text>
+    </svg>
+  </div>
+  <div class="hero-title">CALLGOD</div>
+  <div class="hero-subtitle">The Oracle of Markets</div>
+  <div class="hero-buttons">
+    <a href="#oracle" class="hero-btn primary">TODAY'S CALL</a>
+    <a href="#community" class="hero-btn secondary">JOIN TEMPLE</a>
+  </div>
+  <div class="scroll-hint"><span>SCROLL</span><div class="scroll-line"></div></div>
+</section>
+
+<!-- Stats Bar -->
+<div class="stats-bar reveal">
+  <div class="stat"><div class="stat-value" id="statCalls">0</div><div class="stat-label">TOTAL CALLS</div></div>
+  <div class="stat"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label">WIN RATE</div></div>
+  <div class="stat"><div class="stat-value" id="statHolders">0</div><div class="stat-label">BELIEVERS</div></div>
+  <div class="stat"><div class="stat-value">0%</div><div class="stat-label">BUY / SELL TAX</div></div>
+</div>
+
+<div class="gold-line" style="width:50%;margin-top:0"></div>
+
+<!-- Story -->
+<section id="story">
+  <div class="section-label reveal">Chapter I</div>
+  <div class="section-title reveal">The Prophecy</div>
+  <div class="story">
+    <div class="reveal">
+      <p class="story-text">In the chaos of crypto markets, where fortunes rise and fall with every candle, <em>one voice cuts through the noise.</em></p>
+      <br>
+      <p class="story-text">CallGod is not just a token. It is an <em>oracle</em> — an AI-powered entity that delivers one divine crypto call every single day. One coin. One direction. One prophecy.</p>
+      <br>
+      <p class="story-text">When the call is right, the faithful are rewarded. When the call is wrong, <em>the roast begins.</em></p>
+      <div class="story-quote">"Right or wrong, always entertaining."</div>
+    </div>
+    <div class="story-divider"></div>
+    <div class="reveal">
+      <p class="story-text">The Oracle uses <em>advanced AI analysis</em> — scanning on-chain data, social sentiment, whale movements, and technical patterns to deliver its daily prophecy.</p>
+      <br>
+      <p class="story-text">But here's the truth: <em>no god is perfect.</em> The Oracle will be wrong. And that's the beauty of it. The community roasts, laughs, and comes back for more.</p>
+      <br>
+      <p class="story-text">Because in the end, it was never about being right. It was about <em>the journey, the memes, and the temple we built together.</em></p>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line" style="width:30%"></div>
+
+<!-- How It Works -->
+<section>
+  <div class="section-label reveal">Chapter II</div>
+  <div class="section-title reveal">The Sacred Ritual</div>
+  <div class="section-desc reveal">Every day, the same ritual repeats. The faithful gather. The Oracle speaks. The market decides.</div>
+  <div class="works-grid">
+    <div class="work-card reveal" data-num="I">
+      <div class="work-icon">&#9672;</div>
+      <h3>The Prophecy</h3>
+      <p>At the sacred hour, the Oracle analyzes the markets and delivers one call. One coin. One direction. Bullish or bearish. The prophecy is cast.</p>
+    </div>
+    <div class="work-card reveal reveal-delay-1" data-num="II">
+      <div class="work-icon">&#9670;</div>
+      <h3>The Judgment</h3>
+      <p>24 hours later, the truth is revealed. Did the Oracle see clearly? Or did the god stumble? The results are posted for all to see.</p>
+    </div>
+    <div class="work-card reveal reveal-delay-2" data-num="III">
+      <div class="work-icon">&#9674;</div>
+      <h3>The Reckoning</h3>
+      <p>If right — the faithful celebrate and the coin pumps. If wrong — the roasting begins. Memes flow. Laughter echoes. Either way, we feast.</p>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line" style="width:40%"></div>
+
+<!-- Live Oracle -->
+<section id="oracle">
+  <div class="section-label reveal">Chapter III</div>
+  <div class="section-title reveal">The Oracle Speaks</div>
+  <div class="section-desc reveal">Today's divine prophecy. Updated daily at 10:00 AM EST.</div>
+
+  <div class="oracle-live reveal">
+    <div class="oracle-header">
+      <div class="oracle-status"><div class="live-dot"></div><span>ORACLE ACTIVE</span></div>
+      <div class="oracle-countdown">
+        <label>NEXT PROPHECY IN</label>
+        <div class="countdown-timer" id="countdown">--:--:--</div>
+      </div>
+    </div>
+    <div class="oracle-call">
+      <div class="oracle-call-date" id="oracleDate">Loading...</div>
+      <div class="oracle-call-coin" id="oracleCoin">...</div>
+      <div class="oracle-call-direction bullish" id="oracleDirection">...</div>
+      <div class="oracle-call-text" id="oracleText">"The Oracle is preparing the next prophecy..."</div>
+    </div>
+    <div class="oracle-results">
+      <div class="oracle-result"><label>ENTRY PRICE</label><span class="gold" id="oracleEntry">-</span></div>
+      <div class="oracle-result"><label>RESULT</label><span id="oraclePnl">-</span></div>
+      <div class="oracle-result"><label>STATUS</label><span class="gold" id="oracleStatus">-</span></div>
+      <div class="oracle-result"><label>GOD'S STREAK</label><span class="gold" id="oracleStreak">-</span></div>
+    </div>
+  </div>
+
+  <!-- Report Card -->
+  <div class="report-card">
+    <div class="report-chart reveal">
+      <h3>God's Report Card</h3>
+      <div class="bar-chart" id="barChart"></div>
+    </div>
+    <div class="report-history reveal">
+      <h3>Recent Prophecies</h3>
+      <div class="history-list" id="historyList">
+        <div class="history-item"><div class="history-coin" style="color:var(--text-dim)">Loading prophecy history...</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line" style="width:35%"></div>
+
+<!-- Tokenomics -->
+<section id="tokenomics">
+  <div class="section-label reveal">Chapter IV</div>
+  <div class="section-title reveal">The Sacred Numbers</div>
+  <div class="section-desc reveal">Simple. Clean. No hidden tricks. The numbers speak for themselves.</div>
+  <div class="token-grid">
+    <div class="token-visual reveal">
+      <div class="token-ring-outer"><div class="token-ring-inner"><span>1B</span><small>TOTAL SUPPLY</small></div></div>
+    </div>
+    <div class="reveal">
+      <div class="token-list">
+        <div class="token-item"><div class="token-item-name"><div class="token-dot lp"></div><span class="token-item-label">Liquidity Pool (Burned)</span></div><div class="token-item-value">90%</div></div>
+        <div class="token-item"><div class="token-item-name"><div class="token-dot mkt"></div><span class="token-item-label">Marketing & KOLs</span></div><div class="token-item-value">5%</div></div>
+        <div class="token-item"><div class="token-item-name"><div class="token-dot dev"></div><span class="token-item-label">Development & AI Oracle</span></div><div class="token-item-value">5%</div></div>
+        <div class="token-item" style="border:none"><div class="token-item-name"><span class="token-item-label" style="color:var(--gold)">Buy / Sell Tax</span></div><div class="token-item-value">0%</div></div>
+      </div>
+      <div class="token-features">
+        <div class="token-feature"><span>LP BURNED</span><p>Liquidity permanently locked</p></div>
+        <div class="token-feature"><span>CONTRACT RENOUNCED</span><p>No one can modify the token</p></div>
+        <div class="token-feature"><span>0% TAX</span><p>No hidden fees on trades</p></div>
+        <div class="token-feature"><span>COMMUNITY OWNED</span><p>Power to the believers</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="contract-box reveal">
+    <div><label>CONTRACT ADDRESS · SOLANA</label><span id="ca-text">To be announced at launch</span></div>
+    <button class="copy-btn" onclick="copyCA()">COPY CA</button>
+  </div>
+</section>
+
+<div class="gold-line" style="width:50%"></div>
+
+<!-- Roadmap -->
+<section id="roadmap">
+  <div class="section-label reveal">Chapter V</div>
+  <div class="section-title reveal">The Divine Plan</div>
+  <div class="section-desc reveal">From genesis to eternity. The Oracle's path is written in the stars.</div>
+  <div class="roadmap-timeline">
+    <div class="roadmap-phase reveal">
+      <div class="phase-label">PHASE I — GENESIS</div>
+      <div class="phase-title">The Awakening</div>
+      <ul class="phase-items">
+        <li>Brand identity & luxury website launch</li>
+        <li>Twitter/X @CallGodAI community building</li>
+        <li>Telegram Temple opens for believers</li>
+        <li>Daily Oracle calls begin (manual AI analysis)</li>
+        <li>First 1,000 faithful gathered</li>
+        <li>Meme army deployed across CT</li>
+      </ul>
+    </div>
+    <div class="roadmap-phase reveal">
+      <div class="phase-label">PHASE II — ASCENSION</div>
+      <div class="phase-title">The Token Launch</div>
+      <ul class="phase-items">
+        <li>$CALLGOD token launch on Solana</li>
+        <li>Liquidity burned & contract renounced</li>
+        <li>KOL partnership campaign activated</li>
+        <li>CoinGecko & CoinMarketCap listings</li>
+        <li>DexScreener trending push</li>
+        <li>God's Report Card dashboard goes live</li>
+      </ul>
+    </div>
+    <div class="roadmap-phase reveal">
+      <div class="phase-label">PHASE III — DIVINITY</div>
+      <div class="phase-title">The AI Oracle</div>
+      <ul class="phase-items">
+        <li>Full AI-powered Oracle bot deployment</li>
+        <li>"Predict with God" community games</li>
+        <li>Premium Temple (early call access)</li>
+        <li>Weekly "Roast the God" meme contests</li>
+        <li>God vs Community prediction leaderboard</li>
+        <li>Revenue sharing for top predictors</li>
+      </ul>
+    </div>
+    <div class="roadmap-phase reveal">
+      <div class="phase-label">PHASE IV — ETERNITY</div>
+      <div class="phase-title">The Empire</div>
+      <ul class="phase-items">
+        <li>CEX listings (Tier 2 & Tier 1)</li>
+        <li>CallGod mobile app for iOS & Android</li>
+        <li>Multi-chain expansion (Base, ETH)</li>
+        <li>Strategic partnerships with AI projects</li>
+        <li>CallGod NFT collection for OG believers</li>
+        <li>The Oracle sees all. The empire is eternal.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line" style="width:40%"></div>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-label reveal">Chapter VI</div>
+  <div class="section-title reveal">Sacred Questions</div>
+  <div class="faq-list">
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">What is $CALLGOD?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>$CALLGOD is a meme token on Solana powered by an AI Oracle that delivers one crypto call every day. It combines entertainment, community, and AI technology into one unique project. Think of it as the world's most entertaining (and sometimes wrong) crypto analyst.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">How does the Oracle make its calls?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>The Oracle analyzes multiple data sources including on-chain metrics, social sentiment, whale wallet movements, technical chart patterns, and market momentum. It then delivers one call per day — a single coin with a bullish or bearish direction. The AI is powered by NexAI technology.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">Is the Oracle always right?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>No! And that's the point. The Oracle has a roughly 58% win rate — better than a coin flip, but far from perfect. When the Oracle is wrong, the community comes together to roast, meme, and laugh about it. Right or wrong, it's always entertaining.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">Is this financial advice?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>Absolutely not. $CALLGOD is a meme token and the Oracle's calls are for entertainment purposes only. Never invest more than you can afford to lose. Always do your own research (DYOR). The Oracle is a god, not a financial advisor.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">How do I buy $CALLGOD?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>$CALLGOD will be available on Solana DEXs (like Jupiter, Raydium). You'll need a Solana wallet (Phantom or Solflare recommended) with SOL for the swap. The contract address will be announced on our official Twitter and Telegram at launch.</p></div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-question" onclick="toggleFaq(this)">What makes $CALLGOD different from other meme coins?<span class="faq-icon">+</span></button>
+      <div class="faq-answer"><p>Most meme coins are just a logo and a prayer. $CALLGOD has a daily-use AI product (the Oracle), a self-aware brand that embraces being wrong, a gamified community with prediction contests, and a luxury aesthetic that stands out in a sea of low-effort launches. Plus, the memes write themselves.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="gold-line" style="width:60%"></div>
+
+<!-- CTA -->
+<section id="community" class="cta-section">
+  <div class="section-label reveal">Enter The Temple</div>
+  <div class="cta-title reveal">The Oracle Awaits</div>
+  <div class="cta-sub reveal">Will you answer the call? Join the faithful and witness the prophecy unfold.</div>
+  <div class="cta-buttons reveal">
+    <a href="https://twitter.com/CallGodAI" target="_blank" class="cta-btn primary">TWITTER / X</a>
+    <a href="#" target="_blank" class="cta-btn secondary">TELEGRAM</a>
+    <a href="#" target="_blank" class="cta-btn secondary">BUY $CALLGOD</a>
+    <a href="#" target="_blank" class="cta-btn secondary">DEXSCREENER</a>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="footer-logo">CALLGOD</div>
+      <p>The Oracle of Markets. Daily AI-powered crypto calls on Solana. Right or wrong, always entertaining. EST. 2026.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Navigate</h4>
+      <a href="#story">Story</a>
+      <a href="#oracle">Oracle</a>
+      <a href="#tokenomics">Tokenomics</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="footer-col">
+      <h4>Community</h4>
+      <a href="https://twitter.com/CallGodAI" target="_blank">Twitter / X</a>
+      <a href="#">Telegram</a>
+      <a href="#">Discord</a>
+      <a href="#">Medium</a>
+    </div>
+    <div class="footer-col">
+      <h4>Resources</h4>
+      <a href="#">DexScreener</a>
+      <a href="#">CoinGecko</a>
+      <a href="#">Birdeye</a>
+      <a href="#">Solscan</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p class="footer-disclaimer">$CALLGOD is a meme token on the Solana blockchain. This is not financial advice. The Oracle's calls are for entertainment purposes only. Always DYOR. Trade responsibly. Past performance does not guarantee future results.</p>
+    <div class="powered-by">
+      <span>Powered by</span>
+      <a href="https://nexaionline.cloud" target="_blank">NexAI</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Preloader
+window.addEventListener('load',()=>{setTimeout(()=>document.getElementById('preloader').classList.add('hidden'),2200)});
+
+// Custom Cursor
+const dot=document.getElementById('cursorDot'),ring=document.getElementById('cursorRing');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;dot.style.left=mx-3+'px';dot.style.top=my-3+'px'});
+function animateRing(){rx+=(mx-rx)*.15;ry+=(my-ry)*.15;ring.style.left=rx-18+'px';ring.style.top=ry-18+'px';requestAnimationFrame(animateRing)}
+animateRing();
+document.querySelectorAll('a,button,.work-card,.roadmap-phase,.faq-question').forEach(el=>{
+  el.addEventListener('mouseenter',()=>ring.classList.add('hover'));
+  el.addEventListener('mouseleave',()=>ring.classList.remove('hover'));
+});
+
+// Navbar scroll
+window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>80)});
+
+// Mobile menu
+function toggleMenu(){
+  document.getElementById('navLinks').classList.toggle('open');
+  document.getElementById('menuToggle').classList.toggle('active');
+}
+function closeMenu(){
+  document.getElementById('navLinks').classList.remove('open');
+  document.getElementById('menuToggle').classList.remove('active');
+}
+
+// Scroll reveal
+const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');obs.unobserve(e.target)}})},{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+// Particles
+const pc=document.getElementById('particles');
+for(let i=0;i<25;i++){const p=document.createElement('div');p.className='particle';p.style.left=Math.random()*100+'%';p.style.animationDuration=(18+Math.random()*30)+'s';p.style.animationDelay=Math.random()*20+'s';p.style.width=p.style.height=(1+Math.random()*2)+'px';pc.appendChild(p)}
+
+// Ticker bar
+const tickerData=['$CALLGOD — The Oracle of Markets','Daily AI Crypto Calls on Solana','Right or Wrong, Always Entertaining','Join the Temple — twitter.com/CallGodAI','Powered by NexAI Technology','LP Burned · Contract Renounced · 0% Tax','God\'s Win Rate: 58% · Streak: 3W'];
+let tickerHTML='';
+for(let i=0;i<3;i++) tickerData.forEach(t=>tickerHTML+=`<span>${t}</span>`);
+document.getElementById('tickerContent').innerHTML=tickerHTML;
+
+// Countdown timer (next call at 10 AM EST)
+function updateCountdown(){
+  const now=new Date();
+  const est=new Date(now.toLocaleString('en-US',{timeZone:'America/New_York'}));
+  let next=new Date(est);
+  next.setHours(10,0,0,0);
+  if(est>=next) next.setDate(next.getDate()+1);
+  const diff=next-est;
+  const h=String(Math.floor(diff/36e5)).padStart(2,'0');
+  const m=String(Math.floor((diff%36e5)/6e4)).padStart(2,'0');
+  const s=String(Math.floor((diff%6e4)/1e3)).padStart(2,'0');
+  document.getElementById('countdown').textContent=h+':'+m+':'+s;
+}
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+// Animated counters
+function animateCounter(el,target,suffix='',duration=2000){
+  let start=0;const step=target/duration*16;
+  function tick(){start+=step;if(start>=target){el.textContent=(target%1===0?target:target.toFixed(1))+suffix;return}
+  el.textContent=Math.floor(start)+suffix;requestAnimationFrame(tick)}tick();
+}
+
+// Fetch live data from API
+let liveData=null;
+async function fetchLiveData(){
+  try{
+    const res=await fetch('/api.php?action=get_all');
+    liveData=await res.json();
+    if(liveData.success) updateUI(liveData);
+  }catch(e){console.log('API not ready yet')}
+}
+
+function updateUI(d){
+  // Stats
+  const s=d.stats;
+  if(s.total_calls>0){
+    animateCounter(document.getElementById('statCalls'),s.total_calls);
+    animateCounter(document.getElementById('statWinRate'),s.win_rate,'%');
+  }
+  if(s.believers>0) animateCounter(document.getElementById('statHolders'),s.believers);
+
+  // Latest call
+  const c=d.latest_call;
+  if(c){
+    const dt=new Date(c.date);
+    const months=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+    document.getElementById('oracleDate').textContent=months[dt.getMonth()]+' '+dt.getDate()+', '+dt.getFullYear()+' · CALL #'+c.call_number;
+    document.getElementById('oracleCoin').textContent=c.coin.startsWith('$')?c.coin:'$'+c.coin;
+    const dirEl=document.getElementById('oracleDirection');
+    dirEl.textContent=c.direction==='bullish'?'BULLISH ▲':'BEARISH ▼';
+    dirEl.className='oracle-call-direction '+(c.direction==='bullish'?'bullish':'bearish');
+    document.getElementById('oracleText').textContent='"'+c.prediction+'"';
+    document.getElementById('oracleEntry').textContent='$'+parseFloat(c.entry_price).toFixed(2);
+    
+    if(c.result==='pending'){
+      document.getElementById('oraclePnl').textContent='PENDING';
+      document.getElementById('oraclePnl').className='gold';
+      document.getElementById('oracleStatus').textContent='AWAITING JUDGMENT';
+    }else{
+      const pnl=c.pnl;
+      document.getElementById('oraclePnl').textContent=(pnl>0?'+':'')+pnl+'%';
+      document.getElementById('oraclePnl').className=pnl>0?'green':'red';
+      document.getElementById('oracleStatus').textContent=c.result==='win'?'PROPHECY FULFILLED':'GOD TOOK AN L';
+      document.getElementById('oracleStatus').className=c.result==='win'?'green':'red';
+    }
+    document.getElementById('oracleStreak').textContent=s.streak+s.streak_type;
+  }
+
+  // History
+  const hist=d.recent_calls;
+  if(hist&&hist.length>0){
+    const hList=document.getElementById('historyList');
+    hList.innerHTML='';
+    hist.forEach(h=>{
+      const dt=new Date(h.date);
+      const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      const dateStr=months[dt.getMonth()]+' '+dt.getDate();
+      const coin=h.coin.startsWith('$')?h.coin:'$'+h.coin;
+      let resultHtml='';
+      if(h.result==='pending') resultHtml='<div class="history-result" style="color:var(--gold);border-color:var(--gold)">PENDING</div>';
+      else if(h.result==='win') resultHtml='<div class="history-result win">+'+(h.pnl||0)+'%</div>';
+      else resultHtml='<div class="history-result loss">'+(h.pnl||0)+'%</div>';
+      hList.innerHTML+='<div class="history-item"><div><div class="history-coin">'+coin+'</div><div class="history-date">'+dateStr+'</div></div>'+resultHtml+'</div>';
+    });
+  }
+
+  // Report card
+  const barChart=document.getElementById('barChart');
+  if(hist&&hist.length>0){
+    barChart.innerHTML='';
+    const days={};
+    hist.forEach(h=>{
+      const dt=new Date(h.date);
+      const day=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dt.getDay()];
+      if(!days[day]) days[day]={wins:0,losses:0};
+      if(h.result==='win') days[day].wins++;
+      else if(h.result==='loss') days[day].losses++;
+    });
+    const totalW=Object.values(days).reduce((a,d)=>a+d.wins,0);
+    const totalL=Object.values(days).reduce((a,d)=>a+d.losses,0);
+    const totalAll=totalW+totalL;
+    if(totalAll>0){
+      const wp=Math.round(totalW/totalAll*100);
+      barChart.innerHTML='<div class="bar-row"><span class="bar-label">WIN</span><div class="bar-track"><div class="bar-fill win" style="width:'+wp+'%;display:inline-block;vertical-align:top"></div></div><span class="bar-value">'+totalW+'</span></div>';
+      barChart.innerHTML+='<div class="bar-row"><span class="bar-label">LOSS</span><div class="bar-track"><div class="bar-fill loss" style="width:'+(100-wp)+'%;display:inline-block;vertical-align:top"></div></div><span class="bar-value">'+totalL+'</span></div>';
+      barChart.innerHTML+='<div class="bar-row"><span class="bar-label">RATE</span><div class="bar-track"><div class="bar-fill win" style="width:'+wp+'%;display:inline-block;vertical-align:top"></div></div><span class="bar-value">'+wp+'%</span></div>';
+    }
+  }
+}
+
+fetchLiveData();
+setInterval(fetchLiveData,60000);
+
+const statsObs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){
+  if(!liveData){
+    animateCounter(document.getElementById('statCalls'),0);
+    animateCounter(document.getElementById('statWinRate'),0,'%');
+    animateCounter(document.getElementById('statHolders'),0);
+  }
+  statsObs.unobserve(e.target)}})},{threshold:.3});
+statsObs.observe(document.querySelector('.stats-bar'));
+
+// Report card bar chart (default empty)
+const barChart=document.getElementById('barChart');
+if(!liveData) barChart.innerHTML='<div style="color:var(--text-dim);font-size:13px;padding:20px 0">No calls yet. Add your first prophecy from the admin panel.</div>';
+
+// FAQ
+function toggleFaq(btn){
+  const item=btn.parentElement;const answer=item.querySelector('.faq-answer');
+  const isOpen=item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i=>{i.classList.remove('open');i.querySelector('.faq-answer').style.maxHeight=null});
+  if(!isOpen){item.classList.add('open');answer.style.maxHeight=answer.scrollHeight+'px'}
+}
+
+// Copy CA
+function copyCA(){
+  const ca=document.getElementById('ca-text').innerText;
+  if(ca==='To be announced at launch'){alert('Contract address will be announced at launch!');return}
+  navigator.clipboard.writeText(ca).then(()=>{const b=document.querySelector('.copy-btn');b.textContent='COPIED!';setTimeout(()=>b.textContent='COPY CA',2000)});
+}
+</script>
+
+</body>
+</html>
