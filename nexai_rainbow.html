@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexAI — AI-Powered Crypto Intelligence</title>
+<meta name="description" content="NexAI builds AI-powered tools for crypto. Oracle predictions, whale tracking, sniper bots, and more.">
+<meta property="og:title" content="NexAI — The Future of Crypto Intelligence">
+<meta property="og:description" content="Building the AI layer for crypto degens.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--c1:#FF6B6B;--c2:#FF9F43;--c3:#FFD32A;--c4:#00E676;--c5:#00D2FF;--c6:#7C4DFF;--c7:#FF6BCB;
+--c1d:rgba(255,107,107,.12);--c2d:rgba(255,159,67,.12);--c3d:rgba(255,211,42,.12);
+--c4d:rgba(0,230,118,.12);--c5d:rgba(0,210,255,.12);--c6d:rgba(124,77,255,.12);--c7d:rgba(255,107,203,.12);
+--bg:#08080F;--bg2:#0C0C18;--bg3:#101020;--card:#0E0E1A;--card2:#141428;
+--text:#F0F0F8;--text2:#9B9BB0;--text3:#5B5B72;--text4:#3A3A50;
+--rainbow:linear-gradient(135deg,#FF6B6B 0%,#FF9F43 16%,#FFD32A 32%,#00E676 50%,#00D2FF 68%,#7C4DFF 84%,#FF6BCB 100%);
+--rainbow-soft:linear-gradient(135deg,rgba(255,107,107,.15),rgba(255,211,42,.1),rgba(0,230,118,.12),rgba(0,210,255,.12),rgba(124,77,255,.15));
+--font:'Inter',sans-serif;--head:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden;line-height:1.6}
+::selection{background:var(--c1);color:#fff}
+
+/* Aurora background blobs */
+.aurora{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(120px);opacity:.25}
+.blob1{top:-200px;right:-200px;width:600px;height:600px;background:#FF6B6B;animation:float1 20s ease-in-out infinite}
+.blob2{bottom:-300px;left:-300px;width:700px;height:700px;background:#7C4DFF;animation:float2 25s ease-in-out infinite}
+.blob3{top:40%;left:50%;width:500px;height:500px;background:#00D2FF;animation:float3 30s ease-in-out infinite;opacity:.15}
+@keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(-100px,100px)}}
+@keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(150px,-100px)}}
+@keyframes float3{0%,100%{transform:translate(-50%,-50%)}50%{transform:translate(-30%,-60%)}}
+
+/* Grid overlay */
+.grid-bg{position:fixed;inset:0;pointer-events:none;z-index:1;background-image:linear-gradient(rgba(255,107,107,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,210,255,.04) 1px,transparent 1px);background-size:80px 80px;mask-image:radial-gradient(ellipse at center,black 30%,transparent 80%)}
+
+main,nav,footer{position:relative;z-index:10}
+
+/* NAV */
+nav{position:fixed;top:0;width:100%;z-index:200;padding:14px 48px;display:flex;justify-content:space-between;align-items:center;backdrop-filter:blur(24px);background:rgba(8,8,15,.6);border-bottom:1px solid rgba(255,255,255,.04);transition:all .3s}
+nav.scrolled{background:rgba(8,8,15,.92);border-bottom:1px solid rgba(255,107,107,.08)}
+.logo{font-family:var(--head);font-size:20px;font-weight:800;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:var(--rainbow);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:#fff;letter-spacing:-1px;box-shadow:0 0 30px rgba(255,107,107,.3)}
+.logo-text{background:var(--rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{color:var(--text2);font-size:13px;text-decoration:none;padding:8px 16px;border-radius:8px;transition:all .2s;font-weight:500}
+.nav-links a:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-cta{background:var(--rainbow)!important;color:#fff!important;font-weight:600!important;box-shadow:0 0 20px rgba(255,107,107,.25)}
+.nav-cta:hover{opacity:.9;transform:translateY(-1px)}
+.menu-toggle{display:none;background:none;border:none;cursor:pointer;padding:8px}
+.menu-toggle span{display:block;width:22px;height:2px;background:var(--text);margin:5px 0;transition:all .3s;border-radius:2px}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 48px 80px;position:relative;overflow:hidden}
+.hero-content{max-width:920px;position:relative;z-index:2}
+.hero-badge{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,107,107,.15);padding:8px 18px;border-radius:100px;margin-bottom:32px;font-family:var(--mono);font-size:11px;letter-spacing:2px;color:var(--c1);opacity:0;animation:up 1s .2s forwards;backdrop-filter:blur(10px)}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:var(--c1);box-shadow:0 0 10px var(--c1);animation:beat 2s infinite}
+@keyframes beat{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.3);opacity:.6}}
+.hero h1{font-family:var(--head);font-size:clamp(44px,8vw,96px);font-weight:800;line-height:.95;letter-spacing:-2px;margin-bottom:28px;opacity:0;animation:up 1s .4s forwards}
+.hero h1 .grad{background:var(--rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 200%;animation:shift 8s ease infinite}
+@keyframes shift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-desc{font-size:19px;color:var(--text2);max-width:620px;margin-bottom:44px;font-weight:300;opacity:0;animation:up 1s .6s forwards}
+.hero-buttons{display:flex;gap:14px;flex-wrap:wrap;opacity:0;animation:up 1s .8s forwards}
+.btn{padding:15px 30px;font-family:var(--font);font-size:14px;font-weight:600;border-radius:10px;text-decoration:none;transition:all .25s;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+.btn-primary{background:var(--rainbow);color:#fff;box-shadow:0 8px 32px rgba(255,107,107,.2)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,107,107,.35)}
+.btn-secondary{background:rgba(255,255,255,.04);color:var(--text);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px)}
+.btn-secondary:hover{border-color:var(--c5);color:var(--c5);background:rgba(0,210,255,.05)}
+@keyframes up{from{opacity:0;transform:translateY(40px)}to{opacity:1;transform:translateY(0)}}
+
+/* TRUSTED BY */
+.trust-strip{padding:32px 48px;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04);background:rgba(0,0,0,.2)}
+.trust-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:30px}
+.trust-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:3px}
+.trust-items{display:flex;gap:50px;flex-wrap:wrap;align-items:center}
+.trust-item{font-family:var(--head);font-size:14px;font-weight:600;color:var(--text2);opacity:.7;transition:opacity .2s}
+.trust-item:hover{opacity:1}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);max-width:1280px;margin:0 auto;padding:60px 48px}
+.stats .s{text-align:center;padding:20px;border-right:1px solid rgba(255,255,255,.04)}
+.stats .s:last-child{border:none}
+.stats .v{font-family:var(--head);font-size:clamp(36px,5vw,56px);font-weight:800;line-height:1;letter-spacing:-1px;margin-bottom:10px}
+.stats .s:nth-child(1) .v{background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stats .s:nth-child(2) .v{background:linear-gradient(135deg,var(--c3),var(--c4));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stats .s:nth-child(3) .v{background:linear-gradient(135deg,var(--c4),var(--c5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stats .s:nth-child(4) .v{background:linear-gradient(135deg,var(--c6),var(--c7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.stats .l{font-family:var(--mono);font-size:11px;color:var(--text3);letter-spacing:2px}
+
+/* SECTION */
+section{padding:120px 48px;max-width:1280px;margin:0 auto;position:relative}
+.s-head{text-align:center;margin-bottom:80px}
+.s-label{font-family:var(--mono);font-size:11px;letter-spacing:4px;margin-bottom:14px;display:inline-block;padding:6px 16px;border-radius:20px;border:1px solid rgba(255,107,107,.15);background:rgba(255,107,107,.04)}
+.s-label.c1{color:var(--c1)}
+.s-label.c4{color:var(--c4);border-color:rgba(0,230,118,.2);background:rgba(0,230,118,.04)}
+.s-label.c5{color:var(--c5);border-color:rgba(0,210,255,.2);background:rgba(0,210,255,.04)}
+.s-label.c6{color:var(--c6);border-color:rgba(124,77,255,.2);background:rgba(124,77,255,.04)}
+.s-title{font-family:var(--head);font-size:clamp(36px,5vw,60px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:20px}
+.s-title .grad{background:var(--rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.s-desc{font-size:17px;color:var(--text2);max-width:640px;margin:0 auto;font-weight:300}
+
+/* PRODUCTS */
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.prod{background:var(--card);border:1px solid rgba(255,255,255,.04);border-radius:20px;padding:40px;position:relative;overflow:hidden;transition:all .35s;cursor:pointer}
+.prod:hover{transform:translateY(-6px);border-color:rgba(255,255,255,.1)}
+.prod::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:20px 20px 0 0;opacity:.7;transition:opacity .3s}
+.prod:hover::before{opacity:1;height:4px}
+.prod.p1::before{background:linear-gradient(90deg,var(--c1),var(--c2),var(--c3))}
+.prod.p2::before{background:linear-gradient(90deg,var(--c3),var(--c4))}
+.prod.p3::before{background:linear-gradient(90deg,var(--c4),var(--c5))}
+.prod.p4::before{background:linear-gradient(90deg,var(--c6),var(--c7))}
+.prod-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;margin-bottom:24px}
+.prod.p1 .prod-icon{background:linear-gradient(135deg,var(--c1d),var(--c2d));border:1px solid rgba(255,107,107,.15)}
+.prod.p2 .prod-icon{background:linear-gradient(135deg,var(--c3d),var(--c4d));border:1px solid rgba(255,211,42,.15)}
+.prod.p3 .prod-icon{background:linear-gradient(135deg,var(--c4d),var(--c5d));border:1px solid rgba(0,230,118,.15)}
+.prod.p4 .prod-icon{background:linear-gradient(135deg,var(--c6d),var(--c7d));border:1px solid rgba(124,77,255,.15)}
+.prod-status{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:5px 12px;border-radius:20px;margin-bottom:20px}
+.st-live{background:rgba(0,230,118,.12);color:var(--c4);border:1px solid rgba(0,230,118,.25)}
+.st-soon{background:rgba(0,210,255,.12);color:var(--c5);border:1px solid rgba(0,210,255,.25)}
+.st-dev{background:rgba(255,211,42,.1);color:var(--c3);border:1px solid rgba(255,211,42,.2)}
+.prod h3{font-family:var(--head);font-size:28px;font-weight:700;margin-bottom:12px;letter-spacing:-.5px}
+.prod p{font-size:14px;color:var(--text2);margin-bottom:24px;line-height:1.65;font-weight:300}
+.prod-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:24px}
+.prod-tag{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:4px 10px;border-radius:6px;background:rgba(255,255,255,.03);color:var(--text2);border:1px solid rgba(255,255,255,.05)}
+.prod-link{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;text-decoration:none;padding:10px 18px;border-radius:8px;transition:all .2s;font-family:var(--font)}
+.prod.p1 .prod-link{color:var(--c1);background:var(--c1d);border:1px solid rgba(255,107,107,.2)}
+.prod.p1 .prod-link:hover{background:rgba(255,107,107,.18)}
+.prod.p2 .prod-link{color:var(--c3);background:var(--c3d);border:1px solid rgba(255,211,42,.2)}
+.prod.p3 .prod-link{color:var(--c5);background:var(--c5d);border:1px solid rgba(0,210,255,.2)}
+.prod.p4 .prod-link{color:var(--c6);background:var(--c6d);border:1px solid rgba(124,77,255,.2)}
+
+/* HOW IT WORKS */
+.how{padding:120px 48px;max-width:1280px;margin:0 auto;position:relative}
+.how-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.how-card{background:var(--card);border:1px solid rgba(255,255,255,.04);border-radius:18px;padding:36px 30px;position:relative;transition:all .3s}
+.how-card:hover{border-color:rgba(255,255,255,.08);transform:translateY(-4px)}
+.how-num{font-family:var(--head);font-size:84px;font-weight:800;line-height:1;letter-spacing:-3px;margin-bottom:16px;display:block}
+.how-card:nth-child(1) .how-num{background:linear-gradient(135deg,var(--c1),var(--c2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:.5}
+.how-card:nth-child(2) .how-num{background:linear-gradient(135deg,var(--c4),var(--c5));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:.5}
+.how-card:nth-child(3) .how-num{background:linear-gradient(135deg,var(--c6),var(--c7));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;opacity:.5}
+.how-card h3{font-family:var(--head);font-size:22px;font-weight:700;margin-bottom:14px}
+.how-card p{font-size:14px;color:var(--text2);font-weight:300;line-height:1.65}
+
+/* TECH STRIP */
+.tech{padding:50px 48px;border-top:1px solid rgba(255,255,255,.04);border-bottom:1px solid rgba(255,255,255,.04)}
+.tech-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:center;gap:60px;flex-wrap:wrap;align-items:center}
+.tech-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:3px;margin-right:30px}
+.tech-item{font-family:var(--head);font-size:14px;font-weight:600;color:var(--text2);opacity:.6;transition:all .2s;cursor:default}
+.tech-item:hover{opacity:1}
+.tech-item:nth-child(2):hover{color:var(--c1)}
+.tech-item:nth-child(3):hover{color:var(--c2)}
+.tech-item:nth-child(4):hover{color:var(--c3)}
+.tech-item:nth-child(5):hover{color:var(--c4)}
+.tech-item:nth-child(6):hover{color:var(--c5)}
+.tech-item:nth-child(7):hover{color:var(--c6)}
+.tech-item:nth-child(8):hover{color:var(--c7)}
+
+/* CTA */
+.cta{padding:140px 48px;text-align:center;position:relative;overflow:hidden}
+.cta::before{content:'';position:absolute;top:50%;left:50%;width:800px;height:800px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,107,107,.08),rgba(124,77,255,.06) 40%,transparent 70%);pointer-events:none}
+.cta-content{position:relative;z-index:1}
+.cta h2{font-family:var(--head);font-size:clamp(40px,6vw,72px);font-weight:800;line-height:1.05;letter-spacing:-1.5px;margin-bottom:18px}
+.cta h2 .grad{background:var(--rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cta p{font-size:18px;color:var(--text2);margin-bottom:40px;font-weight:300;max-width:560px;margin-left:auto;margin-right:auto}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{border-top:1px solid rgba(255,255,255,.04);padding:70px 48px 30px;background:rgba(0,0,0,.3)}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:50px;max-width:1280px;margin:0 auto 50px}
+.foot-brand .logo{margin-bottom:18px}
+.foot-brand p{font-size:13px;color:var(--text2);line-height:1.7;font-weight:300;max-width:320px}
+.foot-col h4{font-family:var(--head);font-size:13px;font-weight:700;margin-bottom:20px;letter-spacing:1px;color:var(--text)}
+.foot-col a{display:block;font-size:13px;color:var(--text2);text-decoration:none;margin-bottom:12px;transition:color .2s;font-weight:300}
+.foot-col a:hover{color:var(--c1)}
+.foot-bottom{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding-top:24px;border-top:1px solid rgba(255,255,255,.04);flex-wrap:wrap;gap:16px}
+.foot-copy{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:1px}
+.foot-socials{display:flex;gap:14px}
+.foot-soc{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.03);display:flex;align-items:center;justify-content:center;color:var(--text2);text-decoration:none;font-size:12px;font-weight:600;border:1px solid rgba(255,255,255,.04);transition:all .2s}
+.foot-soc:hover{background:var(--rainbow);color:#fff;border-color:transparent}
+
+/* Reveal */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity .9s,transform .9s}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  nav{padding:12px 18px}
+  .nav-links{position:fixed;top:0;right:-100%;width:80%;height:100vh;background:var(--bg);flex-direction:column;justify-content:center;align-items:center;gap:24px;transition:right .4s;z-index:200;border-left:1px solid rgba(255,107,107,.1)}
+  .nav-links.open{right:0}
+  .menu-toggle{display:block;z-index:201}
+  .hero{padding:100px 20px 60px}
+  section,.how,.cta,.trust-strip,.tech{padding:80px 20px}
+  .stats{grid-template-columns:repeat(2,1fr);padding:40px 20px;gap:0}
+  .stats .s{border-bottom:1px solid rgba(255,255,255,.04)}
+  .stats .s:nth-child(2){border-right:none}
+  .stats .s:nth-child(3),.stats .s:nth-child(4){border-bottom:none}
+  .products{grid-template-columns:1fr}
+  .how-grid{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr;gap:36px}
+  .foot-bottom{flex-direction:column;text-align:center}
+  .hero-buttons,.cta-btns{justify-content:center}
+  .trust-inner{justify-content:center;text-align:center}
+  .trust-items{gap:24px}
+}
+</style>
+</head>
+<body>
+
+<div class="aurora">
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+</div>
+<div class="grid-bg"></div>
+
+<nav id="navbar">
+  <a href="#" class="logo">
+    <div class="logo-icon">N</div>
+    <span class="logo-text">NexAI</span>
+  </a>
+  <div class="nav-links" id="navLinks">
+    <a href="#products" onclick="cm()">Products</a>
+    <a href="#how" onclick="cm()">How It Works</a>
+    <a href="https://nexaionline.cloud" onclick="cm()">$CALLGOD</a>
+    <a href="/whale.html" onclick="cm()">Whale Tracker</a>
+    <a href="#community" onclick="cm()" class="nav-cta">Get Started</a>
+  </div>
+  <button class="menu-toggle" onclick="tm()">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<main>
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge"><span class="dot"></span>BUILDING THE FUTURE OF CRYPTO AI</div>
+    <h1>The AI layer<br>for <span class="grad">crypto degens</span></h1>
+    <p class="hero-desc">NexAI builds intelligent tools that give you an unfair edge. From oracle predictions to whale tracking — we're making AI work for the chains.</p>
+    <div class="hero-buttons">
+      <a href="#products" class="btn btn-primary">Explore Products &darr;</a>
+      <a href="https://nexaionline.cloud" class="btn btn-secondary">Try CallGod &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="trust-strip">
+  <div class="trust-inner">
+    <div class="trust-label">POWERING DEGENS ACROSS</div>
+    <div class="trust-items">
+      <span class="trust-item">SOLANA</span>
+      <span class="trust-item">ETHEREUM</span>
+      <span class="trust-item">BASE</span>
+      <span class="trust-item">BSC</span>
+      <span class="trust-item">SUI</span>
+    </div>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="s reveal"><div class="v">5</div><div class="l">AI PRODUCTS</div></div>
+  <div class="s reveal"><div class="v">24/7</div><div class="l">ALWAYS ON</div></div>
+  <div class="s reveal"><div class="v">10+</div><div class="l">CHAINS</div></div>
+  <div class="s reveal"><div class="v">0</div><div class="l">TRUST NEEDED</div></div>
+</div>
+
+<section id="products">
+  <div class="s-head">
+    <div class="s-label c1 reveal">PRODUCTS</div>
+    <h2 class="s-title reveal">One ecosystem.<br><span class="grad">Infinite alpha.</span></h2>
+    <p class="s-desc reveal">Every tool runs on NexAI's intelligence engine. Built for degens, by degens.</p>
+  </div>
+  
+  <div class="products">
+    <div class="prod p1 reveal">
+      <div class="prod-icon">&#128302;</div>
+      <div class="prod-status st-live">&#9679; LIVE NOW</div>
+      <h3>CallGod</h3>
+      <p>The AI Oracle of Markets. One divine crypto call every day. Right or wrong, always entertaining. Meme coin + AI utility on Solana.</p>
+      <div class="prod-tags">
+        <span class="prod-tag">DAILY CALLS</span>
+        <span class="prod-tag">AI ORACLE</span>
+        <span class="prod-tag">SOLANA</span>
+        <span class="prod-tag">MEME COIN</span>
+      </div>
+      <a href="https://nexaionline.cloud" class="prod-link">Visit CallGod &rarr;</a>
+    </div>
+    
+    <div class="prod p2 reveal">
+      <div class="prod-icon">&#128011;</div>
+      <div class="prod-status st-live">&#9679; LIVE NOW</div>
+      <h3>NexAI Whale</h3>
+      <p>Track whale wallets in real-time. Know what smart money is buying before everyone else. Live dashboard + Telegram alerts.</p>
+      <div class="prod-tags">
+        <span class="prod-tag">WHALE TRACKING</span>
+        <span class="prod-tag">REAL-TIME</span>
+        <span class="prod-tag">ALERTS</span>
+        <span class="prod-tag">MULTI-CHAIN</span>
+      </div>
+      <a href="/whale.html" class="prod-link">Open Tracker &rarr;</a>
+    </div>
+    
+    <div class="prod p3 reveal">
+      <div class="prod-icon">&#9889;</div>
+      <div class="prod-status st-soon">COMING SOON</div>
+      <h3>NexAI Sniper</h3>
+      <p>Lightning-fast token sniper bot for Solana. Detect new launches, auto-buy within milliseconds. The fastest hand in the West.</p>
+      <div class="prod-tags">
+        <span class="prod-tag">AUTO SNIPE</span>
+        <span class="prod-tag">MEV PROTECTION</span>
+        <span class="prod-tag">SOLANA</span>
+        <span class="prod-tag">TELEGRAM BOT</span>
+      </div>
+      <a href="#community" class="prod-link">Join Waitlist &rarr;</a>
+    </div>
+    
+    <div class="prod p4 reveal">
+      <div class="prod-icon">&#128737;</div>
+      <div class="prod-status st-dev">IN DEVELOPMENT</div>
+      <h3>NexAI Shield</h3>
+      <p>AI-powered rug pull detector. Scans contracts, checks LP locks, analyzes holder distribution. Your first line of defense.</p>
+      <div class="prod-tags">
+        <span class="prod-tag">RUG DETECTION</span>
+        <span class="prod-tag">CONTRACT SCAN</span>
+        <span class="prod-tag">RISK SCORE</span>
+        <span class="prod-tag">API</span>
+      </div>
+      <a href="#community" class="prod-link">Get Notified &rarr;</a>
+    </div>
+  </div>
+</section>
+
+<div class="how" id="how">
+  <div class="s-head">
+    <div class="s-label c5 reveal">HOW IT WORKS</div>
+    <h2 class="s-title reveal">Intelligence at <span class="grad">every layer</span></h2>
+    <p class="s-desc reveal">NexAI processes millions of data points to deliver actionable crypto intelligence.</p>
+  </div>
+  
+  <div class="how-grid">
+    <div class="how-card reveal">
+      <span class="how-num">01</span>
+      <h3>Data Collection</h3>
+      <p>Our AI scans on-chain transactions, social sentiment, whale movements, DEX volumes, and 50+ data sources in real-time. Every second. Every chain.</p>
+    </div>
+    <div class="how-card reveal">
+      <span class="how-num">02</span>
+      <h3>AI Analysis</h3>
+      <p>Proprietary machine learning models process the data, detecting patterns invisible to humans. Sentiment analysis, momentum detection, anomaly scoring.</p>
+    </div>
+    <div class="how-card reveal">
+      <span class="how-num">03</span>
+      <h3>Actionable Output</h3>
+      <p>Results delivered through our products — oracle calls, sniper signals, whale alerts, rug warnings. Clear. Fast. Actionable. Available 24/7.</p>
+    </div>
+  </div>
+</div>
+
+<div class="tech">
+  <div class="tech-inner">
+    <span class="tech-label">POWERED BY</span>
+    <span class="tech-item">SOLANA</span>
+    <span class="tech-item">ETHEREUM</span>
+    <span class="tech-item">PYTHON</span>
+    <span class="tech-item">TENSORFLOW</span>
+    <span class="tech-item">GPT-4</span>
+    <span class="tech-item">ON-CHAIN</span>
+    <span class="tech-item">REAL-TIME</span>
+  </div>
+</div>
+
+<section id="community" class="cta">
+  <div class="cta-content">
+    <div class="s-label c6 reveal">JOIN THE REVOLUTION</div>
+    <h2 class="reveal">Ready for <span class="grad">unfair advantages?</span></h2>
+    <p class="reveal">Join the NexAI ecosystem. Start with CallGod. Evolve with the tools.</p>
+    <div class="cta-btns reveal">
+      <a href="https://nexaionline.cloud" class="btn btn-primary">Launch CallGod</a>
+      <a href="https://twitter.com/CallGodAI" target="_blank" class="btn btn-secondary">Follow on X</a>
+      <a href="#" class="btn btn-secondary">Join Telegram</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div class="foot-brand">
+      <a href="#" class="logo">
+        <div class="logo-icon">N</div>
+        <span class="logo-text">NexAI</span>
+      </a>
+      <p>Building AI-powered intelligence tools for the crypto ecosystem. Making AI work for degens since 2026.</p>
+    </div>
+    <div class="foot-col">
+      <h4>Products</h4>
+      <a href="https://nexaionline.cloud">CallGod Oracle</a>
+      <a href="/whale.html">Whale Tracker</a>
+      <a href="#community">NexAI Sniper (Soon)</a>
+      <a href="#community">NexAI Shield (Soon)</a>
+    </div>
+    <div class="foot-col">
+      <h4>Community</h4>
+      <a href="https://twitter.com/CallGodAI" target="_blank">Twitter / X</a>
+      <a href="#">Telegram</a>
+      <a href="#">Discord</a>
+    </div>
+    <div class="foot-col">
+      <h4>Resources</h4>
+      <a href="https://nexaionline.cloud">Main Website</a>
+      <a href="#">Documentation</a>
+      <a href="#">API (Coming Soon)</a>
+    </div>
+  </div>
+  <div class="foot-bottom">
+    <div class="foot-copy">&copy; 2026 NEXAI. ALL RIGHTS RESERVED.</div>
+    <div class="foot-socials">
+      <a href="https://twitter.com/CallGodAI" target="_blank" class="foot-soc">X</a>
+      <a href="#" class="foot-soc">TG</a>
+      <a href="#" class="foot-soc">DC</a>
+      <a href="#" class="foot-soc">GH</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+window.addEventListener('scroll',()=>{document.getElementById('navbar').classList.toggle('scrolled',window.scrollY>30)});
+const obs=new IntersectionObserver(e=>{e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('visible');obs.unobserve(en.target)}})},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+function tm(){document.getElementById('navLinks').classList.toggle('open')}
+function cm(){document.getElementById('navLinks').classList.remove('open')}
+</script>
+
+</body>
+</html>
