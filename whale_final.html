@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NexAI Whale Tracker — Follow the Smart Money</title>
+<meta name="description" content="Real-time whale wallet tracking on Solana. Know what smart money is buying. Powered by NexAI.">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+--pri:#FF6B6B;--pri-dim:rgba(255,107,107,.12);--pri-light:#FF8E8E;
+--cyan:#00D2FF;--cyan-dim:rgba(0,210,255,.1);
+--green:#00E676;--green-dim:rgba(0,230,118,.1);
+--red:#FF4757;--red-dim:rgba(255,71,87,.1);
+--amber:#FFD32A;--amber-dim:rgba(255,211,42,.1);
+--pink:#FF6BCB;
+--orange:#FF9F43;--orange-dim:rgba(255,159,67,.1);
+--violet:#7C4DFF;--violet-dim:rgba(124,77,255,.1);
+--teal:#1DD1A1;--teal-dim:rgba(29,209,161,.1);
+--bg:#0B0B13;--bg2:#101019;--bg3:#161622;--card:#12121E;--card2:#181828;
+--text:#F0F0F8;--text2:#9B9BB0;--text3:#5B5B72;
+--border:rgba(255,255,255,.05);--border2:rgba(108,92,231,.15);
+--font:'Inter',sans-serif;--heading:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--font);overflow-x:hidden}
+::selection{background:var(--pri);color:#fff}
+
+/* Nav */
+nav{position:fixed;top:0;width:100%;z-index:200;padding:0 32px;height:56px;display:flex;align-items:center;justify-content:space-between;background:rgba(11,11,19,.92);backdrop-filter:blur(24px);border-bottom:1px solid var(--border)}
+.nav-left{display:flex;align-items:center;gap:24px}
+.logo{font-family:var(--heading);font-size:17px;font-weight:700;text-decoration:none;display:flex;align-items:center;gap:8px}
+.logo-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#FF6B6B,#FFD32A,#00E676,#00D2FF,#7C4DFF);display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:12px;font-weight:800;color:#fff}
+.logo span{color:var(--text)}
+.logo small{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:2px;background:var(--bg3);padding:3px 8px;border-radius:4px}
+.nav-tabs{display:flex;gap:2px;margin-left:20px}
+.nav-tab{font-size:12px;color:var(--text3);padding:8px 14px;border-radius:6px;text-decoration:none;transition:all .2s;font-weight:400}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.04)}
+.nav-tab.active{color:#FF8E8E;background:rgba(255,107,107,.1)}
+.nav-right{display:flex;align-items:center;gap:12px}
+.live-badge{font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:5px 12px;border-radius:20px;background:var(--green-dim);color:var(--green);display:flex;align-items:center;gap:6px}
+.live-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.connect-btn{font-family:var(--font);font-size:12px;font-weight:500;padding:7px 18px;border-radius:8px;border:none;cursor:pointer;background:linear-gradient(135deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);color:#fff;transition:opacity .2s}
+.connect-btn:hover{opacity:.85}
+
+/* Dashboard */
+.dash{padding:68px 24px 24px;max-width:1440px;margin:0 auto}
+
+/* Alert top */
+.top-alert{background:linear-gradient(135deg,rgba(255,107,107,.06),rgba(255,211,42,.04),rgba(0,230,118,.04),rgba(0,210,255,.06),rgba(124,77,255,.06));border:1px solid rgba(255,107,107,.12);border-radius:14px;padding:16px 24px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.top-alert-text{display:flex;align-items:center;gap:12px}
+.top-alert-icon{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(124,77,255,.1));display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.top-alert h4{font-family:var(--heading);font-size:13px;font-weight:600}
+.top-alert p{font-size:12px;color:var(--text2);margin-top:2px}
+.top-alert-btn{font-family:var(--mono);font-size:10px;letter-spacing:1px;padding:8px 20px;border-radius:8px;border:1px solid rgba(255,107,107,.2);background:none;color:#FF8E8E;cursor:pointer;transition:all .2s;white-space:nowrap}
+.top-alert-btn:hover{background:rgba(255,107,107,.1);border-color:#FF6B6B}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
+.s-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden}
+.s-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:14px 14px 0 0}
+.s-card.c1::after{background:linear-gradient(90deg,#FF6B6B,#FF9F43,#FFD32A)}
+.s-card.c2::after{background:linear-gradient(90deg,#00D2FF,#00E676)}
+.s-card.c3::after{background:linear-gradient(90deg,#00E676,#1DD1A1)}
+.s-card.c4::after{background:linear-gradient(90deg,#FFD32A,#FF9F43)}
+.s-card.c5::after{background:linear-gradient(90deg,#7C4DFF,#FF6BCB)}
+.s-label{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:1.5px;margin-bottom:10px}
+.s-val{font-family:var(--heading);font-size:26px;font-weight:700}
+.s-val.purple{color:#FF6B6B}
+.s-val.cyan{color:#00D2FF}
+.s-val.green{color:#00E676}
+.s-val.amber{color:#FFD32A}
+.s-val.pink{color:#FF6BCB}
+.s-sub{font-size:11px;color:var(--text3);margin-top:4px;display:flex;align-items:center;gap:4px}
+.s-sub .up{color:var(--green)}
+.s-sub .down{color:var(--red)}
+
+/* Main layout */
+.main{display:grid;grid-template-columns:1fr 340px;gap:18px}
+
+/* Panel */
+.panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.p-head{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.p-title{font-family:var(--heading);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.p-title .live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.p-actions{display:flex;gap:4px}
+.p-btn{font-family:var(--mono);font-size:9px;letter-spacing:1px;padding:5px 10px;border-radius:6px;border:1px solid var(--border);background:none;color:var(--text3);cursor:pointer;transition:all .2s}
+.p-btn:hover,.p-btn.on{border-color:#FF6B6B;color:#FF8E8E;background:rgba(255,107,107,.08)}
+
+/* Whale feed */
+.feed{max-height:640px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(108,92,231,.2) transparent}
+.feed::-webkit-scrollbar{width:3px}
+.feed::-webkit-scrollbar-thumb{background:rgba(108,92,231,.25);border-radius:3px}
+
+.tx{display:grid;grid-template-columns:44px 1fr auto auto;gap:14px;align-items:center;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.02);transition:background .15s;cursor:pointer}
+.tx:hover{background:rgba(108,92,231,.03)}
+
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600}
+.tx-icon.buy{background:var(--green-dim);color:var(--green)}
+.tx-icon.sell{background:var(--red-dim);color:var(--red)}
+.tx-icon.xfer{background:var(--amber-dim);color:var(--amber)}
+
+.tx-info{min-width:0}
+.tx-row1{display:flex;align-items:center;gap:8px}
+.tx-token{font-family:var(--heading);font-size:14px;font-weight:600}
+.tx-tag{font-family:var(--mono);font-size:8px;letter-spacing:1px;padding:2px 7px;border-radius:4px}
+.tx-tag.buy{background:var(--green-dim);color:var(--green)}
+.tx-tag.sell{background:var(--red-dim);color:var(--red)}
+.tx-tag.xfer{background:var(--amber-dim);color:var(--amber)}
+.tx-wallet{font-family:var(--mono);font-size:11px;color:var(--text3);margin-top:3px;display:flex;align-items:center;gap:6px}
+.tx-wallet-label{font-size:9px;padding:1px 6px;border-radius:3px;background:rgba(124,77,255,.1);color:#A29BFE}
+
+.tx-amount{text-align:right}
+.tx-usd{font-family:var(--mono);font-size:14px;font-weight:500}
+.tx-usd.green{color:var(--green)}
+.tx-usd.red{color:var(--red)}
+.tx-usd.amber{color:var(--amber)}
+.tx-tokens{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px}
+
+.tx-time{font-family:var(--mono);font-size:10px;color:var(--text3);text-align:right;min-width:50px}
+
+/* Sidebar */
+.side{display:flex;flex-direction:column;gap:18px}
+
+/* Whale leaderboard */
+.lb-item{display:flex;align-items:center;gap:12px;padding:13px 20px;border-bottom:1px solid rgba(255,255,255,.02)}
+.lb-rank{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:12px;font-weight:700;flex-shrink:0}
+.lb-rank.r1{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000}
+.lb-rank.r2{background:linear-gradient(135deg,#C0C0C0,#A0A0A0);color:#000}
+.lb-rank.r3{background:linear-gradient(135deg,#CD7F32,#A0522D);color:#fff}
+.lb-rank.rn{background:var(--bg3);color:var(--text3)}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-family:var(--mono);font-size:12px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-label{font-size:10px;color:var(--text3);margin-top:2px}
+.lb-pnl{font-family:var(--mono);font-size:13px;font-weight:500}
+.lb-pnl.green{color:var(--green)}
+.lb-pnl.red{color:var(--red)}
+
+/* Hot tokens */
+.ht-item{display:grid;grid-template-columns:auto 1fr 60px 55px;gap:10px;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(255,255,255,.02)}
+.ht-icon{width:30px;height:30px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-family:var(--heading);font-size:10px;font-weight:700;color:#FF9F43}
+.ht-name{font-family:var(--heading);font-size:13px;font-weight:600}
+.ht-count{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.ht-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden}
+.ht-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);transition:width 1s}
+.ht-change{font-family:var(--mono);font-size:11px;text-align:right}
+.ht-change.green{color:var(--green)}
+.ht-change.red{color:var(--red)}
+
+/* Premium */
+.pro-card{background:linear-gradient(135deg,var(--card),#1a1020);border:1px solid rgba(255,107,107,.12);border-radius:14px;padding:28px 24px;text-align:center;position:relative;overflow:hidden}
+.pro-card::before{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,107,107,.05);pointer-events:none}
+.pro-badge{font-family:var(--mono);font-size:9px;letter-spacing:2px;padding:4px 14px;border-radius:20px;background:linear-gradient(135deg,#FF6B6B,#FFD32A,#00E676,#00D2FF,#7C4DFF);color:#fff;display:inline-block;margin-bottom:16px}
+.pro-title{font-family:var(--heading);font-size:20px;font-weight:700;margin-bottom:4px}
+.pro-price{font-family:var(--heading);font-size:36px;font-weight:800;background:linear-gradient(135deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:12px 0 2px}
+.pro-period{font-size:11px;color:var(--text3);margin-bottom:20px}
+.pro-features{text-align:left;margin-bottom:20px}
+.pro-feat{font-size:12px;color:var(--text2);padding:8px 0;border-bottom:1px solid rgba(255,255,255,.03);display:flex;align-items:center;gap:10px}
+.pro-feat::before{content:'';width:16px;height:16px;border-radius:4px;background:rgba(0,230,118,.1);flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.pro-btn{width:100%;padding:14px;font-family:var(--heading);font-size:14px;font-weight:600;border-radius:10px;border:none;cursor:pointer;background:linear-gradient(135deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);color:#fff;letter-spacing:1px;transition:all .2s}
+.pro-btn:hover{opacity:.9;transform:translateY(-1px)}
+
+/* Pricing */
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:start}
+.price-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:0;position:relative;overflow:hidden;transition:all .3s}
+.price-card:hover{border-color:rgba(255,255,255,.1);transform:translateY(-4px)}
+.price-card.popular{border-color:rgba(255,107,107,.2);box-shadow:0 0 40px rgba(255,107,107,.06)}
+.price-tier-bar{height:3px;width:100%}
+.price-popular-tag{position:absolute;top:14px;right:14px;font-family:var(--mono);font-size:8px;letter-spacing:2px;padding:3px 10px;border-radius:20px;background:linear-gradient(135deg,#FF6B6B,#FFD32A,#00E676,#00D2FF,#7C4DFF);color:#fff}
+.price-tier-badge{font-family:var(--mono);font-size:10px;letter-spacing:2px;padding:4px 14px;border-radius:6px;display:inline-block;margin:24px 24px 12px}
+.price-name{font-family:var(--heading);font-size:22px;font-weight:700;padding:0 24px;margin-bottom:8px}
+.price-amount{font-family:var(--heading);font-size:52px;font-weight:800;padding:0 24px;line-height:1;margin-bottom:4px}
+.price-amount.rainbow{background:linear-gradient(135deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.price-dollar{font-size:24px;font-weight:600;vertical-align:top;margin-right:2px}
+.price-mo{font-size:14px;font-weight:400;color:var(--text3)}
+.price-amount.rainbow .price-mo{-webkit-text-fill-color:var(--text3)}
+.price-desc{font-size:13px;color:var(--text2);padding:0 24px;margin-bottom:20px;line-height:1.5}
+.price-divider{height:1px;background:var(--border);margin:0 24px}
+.price-features{padding:20px 24px}
+.pf{font-size:12px;color:var(--text2);padding:7px 0;display:flex;align-items:center;gap:10px}
+.pf::before{content:'';width:14px;height:14px;border-radius:4px;flex-shrink:0}
+.pf.yes::before{background:var(--green-dim);border:1px solid rgba(0,230,118,.2)}
+.pf.no{color:var(--text3);opacity:.5}
+.pf.no::before{background:var(--red-dim);border:1px solid rgba(255,71,87,.15)}
+.price-btn{width:calc(100% - 48px);margin:0 24px 24px;padding:14px;font-family:var(--heading);font-size:14px;font-weight:600;border-radius:10px;border:none;cursor:pointer;letter-spacing:1px;transition:all .2s}
+.price-btn:hover{opacity:.85;transform:translateY(-1px)}
+.rainbow-btn{background:linear-gradient(135deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF);color:#fff}
+
+/* Footer */
+.footer{padding:32px;text-align:center;border-top:1px solid var(--border);margin-top:30px}
+.footer p{font-size:11px;color:var(--text3)}
+.footer a{color:#FF8E8E;text-decoration:none}
+.footer a:hover{text-decoration:underline}
+
+/* Responsive */
+@media(max-width:1024px){.main{grid-template-columns:1fr}.side{display:grid;grid-template-columns:1fr 1fr;gap:18px}}
+@media(max-width:768px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .stats .s-card:last-child{grid-column:span 2}
+  .side{grid-template-columns:1fr}
+  .nav-tabs{display:none}
+  .tx{grid-template-columns:36px 1fr auto}
+  .tx-time{display:none}
+  .top-alert{flex-direction:column;text-align:center}
+  .dash{padding:62px 10px 10px}
+  nav{padding:0 14px}
+  .ht-item{grid-template-columns:auto 1fr 50px}
+  .ht-bar{display:none}
+  .pricing-grid{grid-template-columns:1fr}
+}
+
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.tx.new{animation:slideDown .35s ease-out}
+.fade{opacity:0;transform:translateY(16px);transition:all .5s}
+.fade.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/nexai.html" class="logo">
+      <div class="logo-icon">N</div>
+      <span>NexAI</span>
+      <small>WHALE TRACKER</small>
+    </a>
+    <div class="nav-tabs">
+      <a href="/whale.html" class="nav-tab active">Dashboard</a>
+      <a href="https://nexaionline.cloud" class="nav-tab">CallGod</a>
+      <a href="/nexai.html" class="nav-tab">Ecosystem</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <div class="live-badge">LIVE</div>
+    <button class="connect-btn" onclick="window.open('https://twitter.com/CallGodAI','_blank')">Follow @CallGodAI</button>
+  </div>
+</nav>
+
+<div class="dash">
+
+  <div class="top-alert fade">
+    <div class="top-alert-text">
+      <div class="top-alert-icon">&#128232;</div>
+      <div>
+        <h4>Whale alerts on Telegram</h4>
+        <p>Get instant notifications when whales make moves. Real-time. Free.</p>
+      </div>
+    </div>
+    <button class="top-alert-btn">ENABLE ALERTS</button>
+  </div>
+
+  <div class="stats">
+    <div class="s-card c1 fade"><div class="s-label">WHALE TXS 24H</div><div class="s-val purple" id="s1">0</div><div class="s-sub">Transactions > $50K</div></div>
+    <div class="s-card c2 fade"><div class="s-label">WHALE VOLUME</div><div class="s-val cyan" id="s2">$0</div><div class="s-sub"><span class="up" id="s2d">-</span></div></div>
+    <div class="s-card c3 fade"><div class="s-label">BUY PRESSURE</div><div class="s-val green" id="s3">0%</div><div class="s-sub">Buy vs sell ratio</div></div>
+    <div class="s-card c4 fade"><div class="s-label">TOP PNL 24H</div><div class="s-val amber" id="s4">+0%</div><div class="s-sub">Best whale performer</div></div>
+    <div class="s-card c5 fade"><div class="s-label">ACTIVE WHALES</div><div class="s-val pink" id="s5">0</div><div class="s-sub">Unique wallets 24h</div></div>
+  </div>
+
+  <div class="main">
+    <div class="panel fade">
+      <div class="p-head">
+        <div class="p-title"><div class="live-dot"></div>Live whale feed</div>
+        <div class="p-actions">
+          <button class="p-btn on" onclick="filt('all',this)">ALL</button>
+          <button class="p-btn" onclick="filt('buy',this)">BUY</button>
+          <button class="p-btn" onclick="filt('sell',this)">SELL</button>
+          <button class="p-btn" onclick="filt('xfer',this)">TRANSFER</button>
+        </div>
+      </div>
+      <div class="feed" id="feed"></div>
+    </div>
+
+    <div class="side">
+      <div class="panel fade">
+        <div class="p-head"><div class="p-title">Top whales</div></div>
+        <div id="lb"></div>
+      </div>
+      <div class="panel fade">
+        <div class="p-head"><div class="p-title">Trending tokens</div></div>
+        <div id="ht"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3 TIER PRICING -->
+  <div id="pricing" style="margin-top:30px">
+    <div style="text-align:center;margin-bottom:32px" class="fade">
+      <div class="s-label" style="text-align:center">PRICING</div>
+      <div style="font-family:var(--heading);font-size:28px;font-weight:700">Choose your edge</div>
+      <div style="font-size:14px;color:var(--text2);margin-top:8px">From casual tracker to full degen mode</div>
+    </div>
+    <div class="pricing-grid">
+      <!-- TIER 1: $50 -->
+      <div class="price-card fade" id="tier1">
+        <div class="price-tier-bar" style="background:linear-gradient(90deg,#00E676,#1DD1A1)"></div>
+        <div class="price-tier-badge" style="background:var(--green-dim);color:var(--green)">STARTER</div>
+        <div class="price-name">Whale Scout</div>
+        <div class="price-amount"><span class="price-dollar">$</span>50<span class="price-mo">/mo</span></div>
+        <div class="price-desc">Perfect for casual whale watchers. Get the basics right.</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="pf yes">Live whale feed (5 min delay)</div>
+          <div class="pf yes">Top 10 whale leaderboard</div>
+          <div class="pf yes">Trending tokens dashboard</div>
+          <div class="pf yes">Telegram alerts (top 20 wallets)</div>
+          <div class="pf yes">Solana chain only</div>
+          <div class="pf no">Copy-trade signals</div>
+          <div class="pf no">Wallet labels & tags</div>
+          <div class="pf no">API access</div>
+        </div>
+        <button class="price-btn" style="background:var(--green);color:var(--bg)" onclick="alert('Coming soon! Follow @CallGodAI')">Get Scout</button>
+      </div>
+
+      <!-- TIER 2: $100 (POPULAR) -->
+      <div class="price-card popular fade" id="tier2">
+        <div class="price-tier-bar" style="background:linear-gradient(90deg,#FF6B6B,#FF9F43,#FFD32A,#00E676,#00D2FF,#7C4DFF)"></div>
+        <div class="price-popular-tag">MOST POPULAR</div>
+        <div class="price-tier-badge" style="background:linear-gradient(135deg,rgba(255,107,107,.15),rgba(124,77,255,.1));color:#FF8E8E">PRO</div>
+        <div class="price-name">Whale Hunter</div>
+        <div class="price-amount rainbow"><span class="price-dollar">$</span>100<span class="price-mo">/mo</span></div>
+        <div class="price-desc">For serious traders. Full whale intelligence at your fingertips.</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="pf yes">Real-time whale feed (0 delay)</div>
+          <div class="pf yes">Top 50 whale leaderboard</div>
+          <div class="pf yes">Trending tokens + volume analysis</div>
+          <div class="pf yes">Telegram alerts (100+ wallets)</div>
+          <div class="pf yes">Solana + Ethereum chains</div>
+          <div class="pf yes">Copy-trade signals</div>
+          <div class="pf yes">Wallet labels (DEX, VC, MM)</div>
+          <div class="pf no">API access</div>
+        </div>
+        <button class="price-btn rainbow-btn" onclick="alert('Coming soon! Follow @CallGodAI')">Get Hunter</button>
+      </div>
+
+      <!-- TIER 3: $150 -->
+      <div class="price-card fade" id="tier3">
+        <div class="price-tier-bar" style="background:linear-gradient(90deg,#7C4DFF,#FF6BCB)"></div>
+        <div class="price-tier-badge" style="background:var(--violet-dim);color:#A29BFE">ELITE</div>
+        <div class="price-name">Whale God</div>
+        <div class="price-amount"><span class="price-dollar">$</span>150<span class="price-mo">/mo</span></div>
+        <div class="price-desc">Maximum alpha. Full API. Multi-chain. For institutions & power users.</div>
+        <div class="price-divider"></div>
+        <div class="price-features">
+          <div class="pf yes">Everything in Hunter</div>
+          <div class="pf yes">Unlimited wallet tracking</div>
+          <div class="pf yes">Solana + ETH + Base + BSC</div>
+          <div class="pf yes">Priority Telegram alerts</div>
+          <div class="pf yes">Advanced copy-trade with limits</div>
+          <div class="pf yes">Full wallet labels + notes</div>
+          <div class="pf yes">REST API access (10K req/day)</div>
+          <div class="pf yes">Private Discord channel</div>
+        </div>
+        <button class="price-btn" style="background:var(--violet);color:#fff" onclick="alert('Coming soon! Follow @CallGodAI')">Get God Mode</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p><a href="/nexai.html">NexAI</a> &middot; Whale Tracker &middot; <a href="https://nexaionline.cloud">$CALLGOD</a> &middot; <a href="https://twitter.com/CallGodAI" target="_blank">@CallGodAI</a></p>
+    <p style="margin-top:6px">Data for informational purposes only. Not financial advice. <a href="/nexai.html">Powered by NexAI</a></p>
+  </div>
+</div>
+
+<script>
+const TOKENS=[{s:'SOL',n:'Solana'},{s:'ETH',n:'Ethereum'},{s:'BTC',n:'Bitcoin'},{s:'WIF',n:'dogwifhat'},{s:'BONK',n:'Bonk'},{s:'JUP',n:'Jupiter'},{s:'RENDER',n:'Render'},{s:'RAY',n:'Raydium'},{s:'ORCA',n:'Orca'},{s:'PYTH',n:'Pyth'},{s:'DRIFT',n:'Drift'},{s:'JITO',n:'Jito'},{s:'TENSOR',n:'Tensor'},{s:'PEPE',n:'Pepe'},{s:'LINK',n:'Chainlink'},{s:'SUI',n:'Sui'}];
+const WALLETS=[
+  {a:'7xKXtg...2Nj8',l:'Smart Money'},
+  {a:'Hq9R2f...k4pV',l:'DEX Trader'},
+  {a:'3mDJz8...xF1q',l:'Known VC'},
+  {a:'9pLw4n...aR7c',l:'Market Maker'},
+  {a:'DkR6v3...hY5e',l:'Early Investor'},
+  {a:'Bn8Fx1...gT9m',l:'Whale'},
+  {a:'Vz5Kq2...jL4s',l:'DeFi Degen'},
+  {a:'Wm3Ht7...bN6p',l:'Fund'},
+  {a:'Ax9Jc4...rP2w',l:'Top Trader'},
+  {a:'Qs1Rn6...fE8y',l:'Alpha Hunter'},
+];
+const r=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const rf=(a,b)=>(Math.random()*(b-a)+a).toFixed(2);
+const rc=a=>a[Math.floor(Math.random()*a.length)];
+const fm=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e3?'$'+(n/1e3).toFixed(0)+'K':'$'+n.toFixed(0);
+const ta=s=>s<60?s+'s ago':s<3600?Math.floor(s/60)+'m ago':Math.floor(s/3600)+'h ago';
+
+let txs=[];let cf='all';
+
+function mkTx(isNew){
+  const types=['buy','buy','buy','sell','sell','xfer'];
+  const type=rc(types);
+  const tok=rc(TOKENS);
+  const wal=rc(WALLETS);
+  const amt=r(50000,4000000);
+  const tokAmt=tok.s==='BTC'?rf(.5,40):tok.s==='ETH'?rf(10,1500):tok.s==='SOL'?rf(200,30000):rf(50000,5000000);
+  return{type,token:tok,wallet:wal,amount:amt,tokAmt,ago:isNew?r(1,20):r(20,86400),isNew:!!isNew};
+}
+
+function renderTx(t){
+  const ic=t.type==='buy'?'&#8593;':t.type==='sell'?'&#8595;':'&#8596;';
+  const cls=t.type==='buy'?'buy':t.type==='sell'?'sell':'xfer';
+  const col=t.type==='buy'?'green':t.type==='sell'?'red':'amber';
+  const sign=t.type==='buy'?'+':t.type==='sell'?'-':'';
+  return`<div class="tx ${cls} ${t.isNew?'new':''}" data-t="${t.type}">
+    <div class="tx-icon ${cls}">${ic}</div>
+    <div class="tx-info">
+      <div class="tx-row1"><span class="tx-token">$${t.token.s}</span><span class="tx-tag ${cls}">${t.type==='xfer'?'TRANSFER':t.type.toUpperCase()}</span></div>
+      <div class="tx-wallet">${t.wallet.a} <span class="tx-wallet-label">${t.wallet.l}</span></div>
+    </div>
+    <div class="tx-amount">
+      <div class="tx-usd ${col}">${sign}${fm(t.amount)}</div>
+      <div class="tx-tokens">${t.tokAmt} ${t.token.s}</div>
+    </div>
+    <div class="tx-time">${ta(t.ago)}</div>
+  </div>`;
+}
+
+function renderFeed(){
+  const f=document.getElementById('feed');
+  const list=cf==='all'?txs:txs.filter(t=>t.type===cf);
+  f.innerHTML=list.map(renderTx).join('');
+}
+
+function filt(type,btn){
+  cf=type;
+  document.querySelectorAll('.p-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  renderFeed();
+}
+
+function updateStats(){
+  const buys=txs.filter(t=>t.type==='buy');
+  const sells=txs.filter(t=>t.type==='sell');
+  const vol=txs.reduce((a,t)=>a+t.amount,0);
+  const bp=txs.length?Math.round(buys.length/txs.length*100):50;
+  document.getElementById('s1').textContent=txs.length;
+  document.getElementById('s2').textContent=fm(vol);
+  document.getElementById('s2d').textContent=(vol>50000000?'+':'')+rf(2,15)+'% vs yesterday';
+  document.getElementById('s2d').className=vol>50000000?'up':'down';
+  document.getElementById('s3').textContent=bp+'%';
+  document.getElementById('s3').className='s-val '+(bp>=50?'green':'red');
+  document.getElementById('s4').textContent='+'+r(20,350)+'%';
+  document.getElementById('s5').textContent=r(25,90);
+}
+
+function renderLB(){
+  const el=document.getElementById('lb');
+  let h='';
+  for(let i=0;i<7;i++){
+    const w=WALLETS[i%WALLETS.length];
+    const pnl=rf(5,280);
+    const rc_=i===0?'r1':i===1?'r2':i===2?'r3':'rn';
+    h+=`<div class="lb-item"><div class="lb-rank ${rc_}">${i+1}</div><div class="lb-info"><div class="lb-name">${w.a}</div><div class="lb-label">${w.l}</div></div><div class="lb-pnl green">+${pnl}%</div></div>`;
+  }
+  el.innerHTML=h;
+}
+
+function renderHT(){
+  const el=document.getElementById('ht');
+  const tokens=TOKENS.slice(0,7).map(t=>({t,count:r(3,30),change:rf(-12,25),max:30})).sort((a,b)=>b.count-a.count);
+  let h='';
+  tokens.forEach(t=>{
+    const g=parseFloat(t.change)>=0;
+    h+=`<div class="ht-item"><div class="ht-icon">${t.t.s.slice(0,2)}</div><div><div class="ht-name">$${t.t.s}</div><div class="ht-count">${t.count} whale txs</div></div><div class="ht-bar"><div class="ht-bar-fill" style="width:${(t.count/t.max)*100}%"></div></div><div class="ht-change ${g?'green':'red'}">${g?'+':''}${t.change}%</div></div>`;
+  });
+  el.innerHTML=h;
+}
+
+// Init
+for(let i=0;i<35;i++) txs.push(mkTx(false));
+txs.sort((a,b)=>a.ago-b.ago);
+renderFeed();updateStats();renderLB();renderHT();
+
+// Live simulation
+setInterval(()=>{
+  const nt=mkTx(true);
+  txs.unshift(nt);
+  if(txs.length>120) txs.pop();
+  renderFeed();updateStats();
+},r(4000,12000));
+
+setInterval(()=>{renderLB();renderHT()},25000);
+
+// Fade in
+const fObs=new IntersectionObserver(e=>{e.forEach(el=>{if(el.isIntersecting){el.target.classList.add('show');fObs.unobserve(el.target)}})},{threshold:.05});
+document.querySelectorAll('.fade').forEach(el=>fObs.observe(el));
+</script>
+</body>
+</html>
